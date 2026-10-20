@@ -1,31 +1,77 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Style Book</title>
-<style>:root{font-family:system-ui,sans-serif;color:#292334;background:#fff8fa}*{box-sizing:border-box}body{margin:0 auto;max-width:650px;padding:20px 16px 100px}header{text-align:center;padding:12px 0 20px}h1{font-family:Georgia,serif;margin:4px;font-size:32px}small,.muted{color:#7f7380}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;position:sticky;top:0;background:#fff8fa;padding:12px 0;z-index:2}button,.btn{border:0;border-radius:22px;padding:11px 8px;background:#f2e8ed;color:#483746;cursor:pointer;font-weight:600}button:disabled{opacity:.6;cursor:wait}button.active,.primary{background:#ed638e;color:white}.board{display:none}.board.active{display:block}.grid{columns:2;column-gap:12px}.card{break-inside:avoid;background:white;border-radius:15px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px #b38a9a22}.card img{display:block;width:100%;height:auto}.card .info{padding:10px;font-size:13px}.card b{display:block}.controls{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}.panel{background:white;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 2px 12px #b38a9a22}input,select,textarea{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #e6dce1;border-radius:10px;font:inherit}label{font-size:13px;font-weight:600}a{color:#a93364}.empty{color:#877c86;padding:30px 8px;text-align:center}.delete{background:transparent;color:#ad4866;font-size:12px;padding:4px 0}.hint{font-size:12px;color:#776975}.drive-actions{display:flex;gap:6px;flex-wrap:wrap;padding:8px}.drive-actions button{font-size:12px;padding:8px}.drive-tag{font-size:11px;color:#786675;padding:0 10px 8px}.drive-panel{border:1px solid #f1dce6}.status{line-height:1.5}h2{font-family:Georgia,serif}#form{display:none}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}.chip{padding:6px 11px;font-size:12px;border-radius:16px;background:#f2e8ed;color:#483746;font-weight:600}.chip.on{background:#ed638e;color:#fff}.tag{display:inline-block;padding:3px 8px;margin:4px 4px 0 0;font-size:11px;border-radius:12px;background:#f7eef2;color:#6d5767}
-.piece-row{display:flex;gap:6px;align-items:center}.piece-row input{flex:2;margin:4px 0}.piece-row select{flex:1.2;margin:4px 0}.piece-row button{padding:8px 11px;flex:none}
-#preview img{max-height:180px;border-radius:12px;display:block;margin:4px 0 12px}
-.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#fff}.thumbs img,.thumbs div{width:100%;aspect-ratio:1;object-fit:cover;background:#f8edf2}.thumbs div{display:flex;align-items:center;justify-content:center;font-size:11px;text-align:center;padding:4px;color:#7f7380}
-.look{background:white;border-radius:18px;overflow:hidden;margin:14px 0;box-shadow:0 2px 12px #b38a9a22}.piece-row img{width:46px;height:46px;object-fit:contain;border-radius:8px;background:#fff;border:1px solid #f1dce6;flex:none}
-.cropchoices{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px}.cropchoices button{flex:none;width:92px;padding:6px;border-radius:14px;background:#fff;border:2px solid #f1dce6;font-size:11px}.cropchoices button.on{border-color:#ed638e}.cropchoices img{width:100%;height:80px;object-fit:contain;display:block;margin-bottom:4px}
-.autostatus{font-size:12px;color:#a93364;margin:0 0 10px}.cardacts{display:flex;gap:10px}
-.look .info{padding:14px}.look h3{font-family:Georgia,serif;margin:0 0 6px}.look p{margin:8px 0;font-size:14px}.badge{font-size:11px;color:#a93364;font-weight:600}</style>
-<header><div>💗</div><h1>My Style Book</h1><small>Your wardrobe · Your outfits · Your inspiration</small></header>
-<nav class="tabs"><button class="active" data-tab="closet">👗 Closet</button><button data-tab="diary">📅 Diary</button><button data-tab="inspiration">🎨 Ideas</button><button data-tab="stylist">✨ Stylist</button></nav>
-<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">＋ Add clothing</button><button onclick="showTab('stylist');mixMatch()">✨ Mix &amp; Match</button><select id="filter" style="width:auto;margin:0" onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div class="grid" id="closetgrid"></div></section>
-<div class="panel drive-panel"><b>☁️ Google Drive wardrobe photos</b><p class="hint">Connect your Google account to see original pictures from your private Wardrobe catalogue folder. Drive photos are displayed here on demand; they are not published on GitHub. Select Add to Closet, Diary or Ideas to save a copy locally in this browser.</p><div class="controls"><button id="drive-connect" class="primary" type="button" onclick="connectDrive()">Connect Google Drive</button><button type="button" onclick="loadDrive()" id="drive-refresh" hidden>↻ Refresh photos</button><button type="button" onclick="disconnectDrive()" id="drive-disconnect" hidden>Disconnect</button></div><p class="hint status" id="drive-status">Not connected. Your existing wardrobe entries are safe.</p><div class="grid" id="drivegrid"></div></div><section id="diary" class="board"><h2>Outfit Diary</h2><p class="hint">Every piece you list in an outfit is added to your Closet automatically.</p><div class="controls"><button class="primary" onclick="add('diary')">＋ Log outfit</button></div><div class="grid" id="diarygrid"></div></section>
-<section id="inspiration" class="board"><h2>My Inspiration</h2><div class="controls"><button class="primary" onclick="add('inspiration')">＋ Add inspiration</button></div><div class="grid" id="inspirationgrid"></div></section>
-<section id="stylist" class="board"><h2>✨ Mix &amp; Match</h2>
-<div class="panel"><p style="margin-top:0">New outfit ideas mixed from your own closet, following your Ideas board and skipping what you've worn recently.</p>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3E5E7;--ink:#43233A;--muted:#765163;--accent:#A23E62;--accent-dark:#86304F;--soft:#FAF3F4;--line:#EAD6DB;--card:#FFFFFF}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0 auto;max-width:680px;padding:0 20px 80px;font-family:'Manrope',system-ui,sans-serif;font-size:15px;line-height:1.45;color:var(--ink);background:var(--bg)}
+header{text-align:center;padding:44px 0 22px}
+h1{font-family:'Italiana',serif;font-weight:400;font-size:clamp(40px,11vw,54px);letter-spacing:1px;line-height:1;margin:0 0 8px}
+header small{font-size:13px;color:var(--muted)}
+h2{font-family:'Italiana',serif;font-weight:400;font-size:32px;letter-spacing:.5px;margin:30px 0 4px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--card);border-radius:999px;position:sticky;top:10px;z-index:3;box-shadow:0 6px 20px rgba(67,35,58,.08)}
+.tabs button{background:transparent;color:var(--muted);height:42px;min-height:0;padding:0;border-radius:999px;font-weight:600}
+.tabs button.active{background:var(--ink);color:#fff;font-weight:700}
+button,.btn{font:inherit;font-size:14px;border:0;border-radius:16px;padding:11px 18px;min-height:44px;background:var(--card);color:var(--accent);cursor:pointer;font-weight:700}
+button:hover{color:var(--accent-dark)}
+.primary,button.primary{background:var(--accent);color:#fff}.primary:hover{background:var(--accent-dark);color:#fff}
+button:disabled{opacity:.6;cursor:wait}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.board{display:none}.board.active{display:block}
+.controls{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap}
+#closet .controls>button{flex:1 1 140px}
+.grid{columns:2;column-gap:12px}
+.card{break-inside:avoid;background:var(--card);border-radius:22px;padding:10px;margin-bottom:12px;overflow:hidden}
+.card img{display:block;width:100%;height:auto;border-radius:16px;background:var(--soft)}
+.card .info{padding:10px 4px 2px;font-size:13px}
+.card b{display:block;font-size:14px;font-weight:700;line-height:1.3}
+.muted{color:var(--muted);font-size:12px;margin-top:2px}
+small{color:var(--muted)}
+.panel{background:var(--card);border-radius:22px;padding:20px;margin:16px 0}
+input,select,textarea{width:100%;padding:12px 14px;margin:6px 0 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);font:inherit;color:var(--ink)}
+input[type=file]{background:transparent;border-style:dashed}
+label{font-size:13px;font-weight:700}
+a{color:var(--accent)}
+.empty{color:var(--muted);padding:36px 16px;text-align:center;column-span:all}
+.delete{background:transparent;color:var(--muted);font-size:12px;font-weight:600;padding:6px 0;min-height:0;border-radius:0}
+.delete:hover{color:var(--accent)}
+.hint{font-size:12.5px;line-height:1.55;color:var(--muted)}
+.drive-actions{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 0}.drive-actions button{font-size:12px;padding:8px 12px;min-height:36px;background:var(--soft)}
+.status{line-height:1.5}
+#form{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.chip{padding:7px 14px;min-height:34px;font-size:12.5px;border-radius:999px;background:var(--card);color:var(--muted);font-weight:600}
+.panel .chip{background:var(--soft)}
+.chip.on,.panel .chip.on{background:var(--ink);color:#fff}
+.tag{display:inline-block;padding:3px 9px;margin:5px 4px 0 0;font-size:11px;border-radius:999px;background:var(--soft);color:var(--ink)}
+.piece-row{display:flex;gap:6px;align-items:center}.piece-row input{flex:2;margin:4px 0}.piece-row select{flex:1.2;margin:4px 0}.piece-row button{padding:8px 12px;min-height:40px;background:var(--soft);flex:none}
+.piece-row img{width:46px;height:46px;object-fit:contain;border-radius:10px;background:#fff;border:1px solid var(--line);flex:none}
+#preview img{max-height:200px;border-radius:16px;display:block;margin:4px 0 12px}
+.cropchoices{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px}.cropchoices button{flex:none;width:96px;padding:6px;min-height:0;border-radius:16px;background:#fff;border:2px solid var(--line);font-size:11px;color:var(--ink)}.cropchoices button.on{border-color:var(--accent)}.cropchoices img{width:100%;height:80px;object-fit:contain;display:block;margin-bottom:4px}
+.autostatus{font-size:12.5px;color:var(--accent);font-weight:600;margin:0 0 10px}
+.cardacts{display:flex;gap:12px}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:16px;overflow:hidden}.thumbs img,.thumbs div{width:100%;aspect-ratio:1;object-fit:cover;background:var(--soft);border-radius:0}.thumbs div{display:flex;align-items:center;justify-content:center;font-size:11px;text-align:center;padding:4px;color:var(--muted)}
+.look{background:var(--card);border-radius:22px;padding:10px;margin:14px 0}.look .info{padding:14px 6px 6px}.look h3{font-family:'Italiana',serif;font-weight:400;font-size:26px;margin:0 0 4px}.look p{margin:8px 0 12px;font-size:14px}
+.badge{font-size:12px;color:var(--accent);font-weight:700}
+details summary{cursor:pointer;color:var(--ink);margin-top:6px}
+.settings{margin-top:48px}.settings h2{font-size:26px}
+</style>
+<header><h1>My Style Book</h1><small>Your wardrobe, outfits and inspiration</small></header>
+<nav class="tabs"><button class="active" data-tab="closet">Closet</button><button data-tab="diary">Diary</button><button data-tab="inspiration">Ideas</button></nav>
+<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">Add clothing</button><button onclick="toggleMix()">Mix &amp; Match</button></div><div class="chips" id="catchips"></div><select id="filter" hidden onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select><div id="mixpanel" class="panel" hidden><h3 style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0">Mix &amp; Match</h3><p class="hint">Outfit ideas from your own closet, following your Ideas board and skipping what you've worn lately.</p>
 <label>Inspiration to follow</label><select id="mm-insp"></select>
 <label>Occasion (optional)</label><input id="mm-occasion" placeholder="e.g. work, dinner out, weekend brunch">
-<button class="primary" id="mm-go" onclick="mixMatch()">✨ Mix &amp; Match</button>
-<p class="hint" id="mm-status"></p></div>
-<div id="mm-results"></div>
-<div class="panel"><b>🔑 AI stylist (Claude)</b><p class="hint">Without a key, Mix &amp; Match uses a quick built-in matcher based on the colours and notes you've written. Add your own Claude API key (from console.anthropic.com) to let AI look at your actual photos, pick smarter outfits and detect the pieces in your diary photos. The key is kept only in this browser and sent only to Anthropic. Each request is billed to your Anthropic account (usually a few cents).</p><input type="password" id="ai-key" placeholder="sk-ant-…" autocomplete="off"><div class="controls" style="margin-top:0"><button onclick="saveKey()">Save key</button><button onclick="clearKey()">Remove key</button></div><p class="hint" id="ai-status"></p></div>
-</section>
+<div class="controls" style="margin:4px 0"><button class="primary" id="mm-go" onclick="mixMatch()">Quick ideas</button><button onclick="exportForClaude(this)">Send my closet to Claude</button></div>
+<p class="hint" id="mm-status"></p>
+<details class="hint"><summary><b>Ask Claude for sketched outfit boards (free)</b></summary><ol style="padding-left:18px;line-height:1.6"><li>Tap <b>Send my closet to Claude</b>. A file called <i>my-closet-for-claude.json</i> is saved to your device.</li><li>Open your <b>stylebook</b> project in Claude and attach that file to a message.</li><li>Ask, e.g. “Mix &amp; match 3 work outfits following my brown &amp; blue inspiration.” Claude lays out outfit boards using your own pieces.</li></ol></details></div>
+<div id="mm-results"></div><div class="grid" id="closetgrid"></div></section>
+<section id="diary" class="board"><h2>Outfit Diary</h2><p class="hint">Every piece you list in an outfit is added to your Closet automatically.</p><div class="controls"><button class="primary" onclick="add('diary')">Log outfit</button></div><div class="grid" id="diarygrid"></div></section>
+<section id="inspiration" class="board"><h2>My Inspiration</h2><div class="controls"><button class="primary" onclick="add('inspiration')">Add inspiration</button></div><div class="grid" id="inspirationgrid"></div></section>
 <div class="panel" id="form"><h2 id="formtitle">Add photo</h2><form id="entryform"><label>Original photo (kept unchanged)</label><input type="file" id="photo" accept="image/*"><div id="preview"></div><p class="autostatus" id="autostatus" hidden></p><div id="cropbox" hidden><label>Which piece is this?</label><div class="cropchoices" id="cropchoices"></div></div><label>Title / description</label><input id="title" required placeholder="e.g. Olive wide-leg trousers"><div id="categorybox"><label>Category</label><select id="category"><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div id="datebox" hidden><label>Date worn</label><input id="date" type="date"></div>
-<div id="piecesbox" hidden><label>Pieces in this outfit</label><p class="hint" style="margin:2px 0 6px">When you choose the photo, each piece is found and cut out automatically. Rename them if you like, ✕ any you don't want. New pieces go into your Closet when you save.</p><div id="existingwrap"><p class="hint" style="margin:6px 0 0">Already in your closet? Tap to tag:</p><div class="chips" id="existingpieces"></div></div><div id="newpieces"></div><div class="controls" style="margin:8px 0 14px"><button type="button" onclick="addPieceRow()">＋ Add piece</button><button type="button" id="detect-btn" onclick="detectPieces()">✨ Detect pieces from photo</button></div></div>
+<div id="piecesbox" hidden><label>Pieces in this outfit</label><p class="hint" style="margin:2px 0 6px">When you choose the photo, each piece is found and cut out automatically. Rename them if you like, ✕ any you don't want. New pieces go into your Closet when you save.</p><div id="existingwrap"><p class="hint" style="margin:6px 0 0">Already in your closet? Tap to tag:</p><div class="chips" id="existingpieces"></div></div><div id="newpieces"></div><div class="controls" style="margin:8px 0 14px"><button type="button" onclick="addPieceRow()">Add a piece</button></div></div>
 <label>Colours, notes or clothing IDs</label><textarea id="notes" rows="2"></textarea><div class="controls"><button type="submit" class="primary">Save</button><button type="button" onclick="document.getElementById('form').style.display='none'">Cancel</button></div></form></div>
-<div class="panel"><b>Storage status</b><p class="hint" id="storage-status">Checking browser storage…</p></div><div class="panel"><b>About your photos</b><p class="hint">Imported photos are saved locally in this browser. Google Drive pictures are fetched privately after you sign in; they are not uploaded to GitHub. This is not a cloud-synced catalogue database: new Drive photos appear when you tap Refresh, and you choose which to import. Browser storage can be lost if you clear site data. Export a backup regularly.</p><button onclick="exportData()">Export catalogue backup</button><label style="display:block;margin-top:12px">Restore catalogue backup</label><input type="file" id="restore" accept="application/json" onchange="restoreData(this)"></div>
+<section class="settings"><h2>Photos &amp; backup</h2><div class="panel drive-panel"><b>Google Drive wardrobe photos</b><p class="hint">Connect your Google account to see original pictures from your private Wardrobe catalogue folder. Drive photos are displayed here on demand; they are not published on GitHub. Select Add to Closet, Diary or Ideas to save a copy locally in this browser.</p><div class="controls"><button id="drive-connect" class="primary" type="button" onclick="connectDrive()">Connect Google Drive</button><button type="button" onclick="loadDrive()" id="drive-refresh" hidden>↻ Refresh photos</button><button type="button" onclick="disconnectDrive()" id="drive-disconnect" hidden>Disconnect</button></div><p class="hint status" id="drive-status">Not connected. Your existing wardrobe entries are safe.</p><div class="grid" id="drivegrid"></div></div><div class="panel"><b>Storage status</b><p class="hint" id="storage-status">Checking browser storage…</p></div><div class="panel"><b>About your photos</b><p class="hint">Imported photos are saved locally in this browser. Google Drive pictures are fetched privately after you sign in; they are not uploaded to GitHub. This is not a cloud-synced catalogue database: new Drive photos appear when you tap Refresh, and you choose which to import. Browser storage can be lost if you clear site data. Export a backup regularly.</p><button onclick="exportData()">Export catalogue backup</button><label style="display:block;margin-top:12px">Restore catalogue backup</label><input type="file" id="restore" accept="application/json" onchange="restoreData(this)"></div>
+</section>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 let records=[];let current='closet';const key='my-style-book-v2';let db=null;let persistence='none';
@@ -34,7 +80,7 @@ let pendingPhoto='',pendingDriveId='',pendingCrop='',tagged=new Set(),rowPhotos=
 const $=id=>document.getElementById(id);
 const today=()=>new Date().toLocaleDateString('en-CA');
 function openDB(){return new Promise((resolve,reject)=>{try{let req=indexedDB.open('MyStyleBook',1);req.onupgradeneeded=()=>{req.result.createObjectStore('data')};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)}catch(e){reject(e)}})}
-async function init(){try{db=await openDB();persistence='indexeddb';let saved=await new Promise((resolve,reject)=>{let tx=db.transaction('data','readonly');let r=tx.objectStore('data').get('records');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});records=saved||[]}catch(e){try{localStorage.setItem('stylebook-test','1');localStorage.removeItem('stylebook-test');persistence='localStorage';records=JSON.parse(localStorage.getItem(key)||'[]')}catch(e2){persistence='none'}}render();updateStatus();showKeyStatus()}
+async function init(){try{db=await openDB();persistence='indexeddb';let saved=await new Promise((resolve,reject)=>{let tx=db.transaction('data','readonly');let r=tx.objectStore('data').get('records');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});records=saved||[]}catch(e){try{localStorage.setItem('stylebook-test','1');localStorage.removeItem('stylebook-test');persistence='localStorage';records=JSON.parse(localStorage.getItem(key)||'[]')}catch(e2){persistence='none'}}render();updateStatus()}
 function updateStatus(){$('storage-status').textContent=persistence==='indexeddb'?'Saving to browser database (local to this browser).':persistence==='localStorage'?'Limited browser storage; large photos may not save.':'Storage is blocked in this file viewer. Use Export Backup or open a hosted version.'}
 
 function showTab(name){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));document.querySelectorAll('.board').forEach(x=>x.classList.toggle('active',x.id===name));$('form').style.display='none'}
@@ -51,20 +97,20 @@ function showPreview(){const p=$('preview');p.replaceChildren();const src=pendin
 function setAuto(msg){const s=$('autostatus');s.hidden=!msg;s.textContent=msg||''}
 // Runs right after a photo is chosen in the Diary or Closet form.
 async function autoDetect(){if(current==='inspiration'||!pendingPhoto)return;const token=++detectToken;const src=pendingPhoto;
- setAuto(segReady?'🔍 Finding the pieces in your photo…':'🔍 Finding the pieces in your photo… (the first time, the detector downloads once — about a minute)');
+ setAuto(segReady?'Finding the pieces in your photo…':'Finding the pieces in your photo… (the first time, the detector downloads once — about a minute)');
  $('cropbox').hidden=true;$('cropchoices').replaceChildren();
  try{const pieces=await findPieces(src);if(token!==detectToken)return;
-  if(current==='diary'){if(!pieces.length){setAuto('No separate pieces found in this photo — add them yourself with ＋ Add piece.');return}
+  if(current==='diary'){if(!pieces.length){setAuto('No separate pieces found in this photo — add them yourself with Add a piece.');return}
    [...$('newpieces').children].forEach(r=>{if(!r.querySelector('.pname').value.trim())r.remove()});
    for(const p of pieces)addPieceRow(p.name,p.category,null,p.photo);
-   setAuto(`✂️ Found ${pieces.length} piece(s) and cut them out. Already own one? Tap ✕ on it and tag it above instead.`)}
+   setAuto(`Found ${pieces.length} piece(s) and cut them out. Already own one? Tap ✕ on it and tag it above instead.`)}
   else{showCropChoices(pieces)}
  }catch(e){if(token===detectToken)setAuto('Auto-detection is unavailable right now ('+e.message+'). You can still add pieces yourself.')}}
 function showCropChoices(pieces){const box=$('cropchoices');box.replaceChildren();if(!pieces.length){setAuto('');return}
  const choose=(btn,p)=>{box.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));pendingCrop=p?p.photo:'';if(p){$('category').value=p.category;if(!$('title').value.trim()||$('title').dataset.auto==='1'){$('title').value=p.name;$('title').dataset.auto='1'}}showPreview()};
  const mk=(label,src,p)=>{const b=document.createElement('button');b.type='button';const i=document.createElement('img');i.src=src;i.alt=label;b.append(i,document.createTextNode(label));b.onclick=()=>choose(b,p);box.append(b);return b};
  const whole=mk('Whole photo',pendingPhoto,null);const btns=pieces.map(p=>mk(p.name,p.photo,p));
- $('cropbox').hidden=false;setAuto('✂️ Tap the piece you are adding — it will be saved cut out on its own.');
+ $('cropbox').hidden=false;setAuto('Tap the piece you are adding — it will be saved cut out on its own.');
  if(pieces.length===1)choose(btns[0],pieces[0]);else choose(whole,null)}
 $('title').oninput=()=>{$('title').dataset.auto='0'};
 
@@ -78,24 +124,6 @@ function addPieceRow(name='',cat='Tops',box=null,photo=''){const row=document.cr
  const sel=document.createElement('select');sel.className='pcat';for(const c of CATS){const o=document.createElement('option');o.textContent=c;sel.append(o)}sel.value=CATS.includes(cat)?cat:'Other';
  const x=document.createElement('button');x.type='button';x.textContent='✕';x.title='Remove piece';x.onclick=()=>row.remove();
  if(box)row.dataset.box=JSON.stringify(box);row.append(inp,sel,x);$('newpieces').append(row);return row}
-async function detectPieces(){
- if(!pendingPhoto){alert('Choose the outfit photo first.');return}
- if(!getKey()){alert('Piece detection uses AI. Add your Claude API key in the ✨ Stylist tab, or type the pieces in yourself with ＋ Add piece.');return}
- const btn=$('detect-btn');btn.disabled=true;btn.textContent='Looking at your outfit…';
- try{
-  const closet=closetItems();
-  const list=closet.map(c=>`id ${c.id}: ${c.title} (${c.category})`).join('\n')||'(empty)';
-  const res=await askClaude([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:await shrink(pendingPhoto,1024)}},{type:'text',text:`This is a photo of an outfit I wore. List each clothing piece, shoe and accessory that is visible.\nMy closet already contains:\n${list}\nIf a piece is clearly one of those closet items, give its id as "existing_id". Otherwise give a short shop-style name with colour, e.g. "Chocolate brown knit cardigan".\nCategory must be one of: ${CATS.join(', ')}.\n"box" is the piece's bounding box as fractions of the image width/height: [left, top, right, bottom].\nReply with JSON only: {"pieces":[{"name":"","category":"","existing_id":null,"box":[0,0,1,1]}]}`}],1500);
-  let found=0;
-  // Reuse the clean automatic cut-outs where Claude finds the same kind of piece.
-  const local=[...$('newpieces').children].filter(r=>rowPhotos.has(r)).map(r=>({cat:r.querySelector('.pcat').value,photo:rowPhotos.get(r),row:r}));
-  if(res.pieces?.length){local.forEach(l=>l.row.remove());[...$('newpieces').children].forEach(r=>{if(!r.querySelector('.pname').value.trim())r.remove()})}
-  for(const p of res.pieces||[]){const ex=closet.find(c=>String(c.id)===String(p.existing_id))||closet.find(c=>c.title.trim().toLowerCase()===String(p.name||'').trim().toLowerCase());
-   if(ex){tagged.add(ex.id)}else if(p.name){const li=local.findIndex(l=>l.cat===p.category);const lp=li>=0?local.splice(li,1)[0].photo:'';addPieceRow(p.name,p.category,lp?null:(Array.isArray(p.box)?p.box:null),lp)}found++}
-  renderExistingChips();
-  if(!found)alert('No pieces were detected. You can add them yourself with ＋ Add piece.');
- }catch(e){alert('Could not detect pieces: '+e.message)}finally{btn.disabled=false;btn.textContent='✨ Detect pieces from photo'}}
-
 $('entryform').onsubmit=async e=>{e.preventDefault();
  let photo=pendingPhoto;if(!photo){const f=$('photo').files[0];if(f)photo=await readFile(f)}
  const old=records.slice();const id=Date.now();const title=$('title').value.trim();const date=$('date').value;
@@ -117,16 +145,18 @@ $('entryform').onsubmit=async e=>{e.preventDefault();
 async function save(){try{if(persistence==='indexeddb'){await new Promise((resolve,reject)=>{let tx=db.transaction('data','readwrite');tx.objectStore('data').put(records,'records');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}else if(persistence==='localStorage'){localStorage.setItem(key,JSON.stringify(records))}else{throw Error('Storage blocked')}return true}catch(e){alert('This downloaded-file browser cannot save the photo reliably. Your entry was NOT saved. Please use Export Backup or a hosted version.');return false}}
 
 function thumbGrid(items){const g=document.createElement('div');g.className='thumbs';for(const it of items.slice(0,6)){if(it&&it.photo){const i=document.createElement('img');i.src=it.photo;i.alt=it.title;g.append(i)}else{const d=document.createElement('div');d.textContent=it?it.title:'?';g.append(d)}}return g}
-function render(){const byId=new Map(records.map(r=>[r.id,r]));
- for(let type of ['closet','diary','inspiration']){let box=$(type+'grid');box.replaceChildren();let items=records.filter(x=>x.type===type&&(type!=='closet'||$('filter').value==='All categories'||x.category===$('filter').value));if(!items.length){let d=document.createElement('p');d.className='empty';d.textContent='Your photo gallery starts here. Tap Add to create your first pin.';box.append(d)}
+function renderCatChips(){const box=$('catchips'),cur=$('filter').value;box.replaceChildren();
+ for(const c of ['All categories',...CATS]){const b=document.createElement('button');b.type='button';b.className='chip'+(c===cur?' on':'');b.textContent=c==='All categories'?'All':c;b.setAttribute('aria-pressed',c===cur);b.onclick=()=>{$('filter').value=c;render()};box.append(b)}}
+function render(){renderCatChips();const byId=new Map(records.map(r=>[r.id,r]));
+ for(let type of ['closet','diary','inspiration']){let box=$(type+'grid');box.replaceChildren();let items=records.filter(x=>x.type===type&&(type!=='closet'||$('filter').value==='All categories'||x.category===$('filter').value));if(!items.length){let d=document.createElement('p');d.className='empty';d.textContent={closet:'Your closet is empty. Add a piece, or log an outfit and its pieces land here.',diary:'No outfits logged yet. Log what you wore and its pieces go into your Closet.',inspiration:'Save looks, colours and moods you love. Mix & Match follows them.'}[type];box.append(d)}
  for(let x of items){let card=document.createElement('div');card.className='card';const pieces=(x.pieces||[]).map(id=>byId.get(id)).filter(Boolean);
   if(x.photo){let img=document.createElement('img');img.src=x.photo;img.alt=x.title;card.append(img)}else if(pieces.length){card.append(thumbGrid(pieces))}
   let info=document.createElement('div');info.className='info';let title=document.createElement('b');title.textContent=x.title;info.append(title);let meta=document.createElement('div');meta.className='muted';meta.textContent=[x.date,x.category&&type==='closet'?x.category:'',x.notes].filter(Boolean).join(' · ');info.append(meta);
   if(pieces.length){const t=document.createElement('div');for(const p of pieces){const s=document.createElement('span');s.className='tag';s.textContent=p.title;t.append(s)}info.append(t)}
   let del=document.createElement('button');del.className='delete';del.textContent='Remove';del.onclick=async()=>{if(confirm('Remove this entry?'+(type==='diary'&&pieces.length?' (The pieces stay in your Closet.)':''))){let old=records;records=records.filter(r=>r.id!==x.id);if(!await save())records=old;render()}};const acts=document.createElement('div');acts.className='cardacts';acts.append(del);
   if(type==='closet'&&x.photo){const c=document.createElement('button');c.className='delete';
-   if(x.original){c.textContent='↩︎ Original photo';c.onclick=async()=>{x.photo=x.original;delete x.original;await save();render()}}
-   else{c.textContent='✂️ Cut out';c.onclick=()=>cutOutItem(x,c)}
+   if(x.original){c.textContent='Back to original photo';c.onclick=async()=>{x.photo=x.original;delete x.original;await save();render()}}
+   else{c.textContent='Cut out';c.onclick=()=>cutOutItem(x,c)}
    acts.append(c)}
   info.append(acts);card.append(info);box.append(card)}}
  const sel=$('mm-insp'),prev=sel.value;sel.replaceChildren();const all=document.createElement('option');all.value='';all.textContent='All my inspiration';sel.append(all);
@@ -176,22 +206,11 @@ function cutout(img,m,w,h,x0,y0,x1,y1){const px=Math.round((x1-x0)*.06)+2,py=Mat
  const d=tc.getImageData(0,0,W,H).data;let r=0,g=0,b=0,k=0;for(let i=0;i<d.length;i+=16)if(d[i+3]>200){r+=d[i];g+=d[i+1];b+=d[i+2];k++}
  const o=document.createElement('canvas');o.width=W;o.height=H;const oc=o.getContext('2d');oc.fillStyle='#fff';oc.fillRect(0,0,W,H);oc.drawImage(t,0,0);
  return{photo:o.toDataURL('image/jpeg',.9),rgb:k?[r/k,g/k,b/k]:[128,128,128]}}
-async function cutOutItem(x,btn){btn.disabled=true;btn.textContent=segReady?'✂️ Cutting out…':'✂️ Loading detector…';
+async function cutOutItem(x,btn){btn.disabled=true;btn.textContent=segReady?'Cutting out…':'Loading detector…';
  try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);
   if(!p){alert(pieces.length?`Couldn't find a piece in the "${x.category}" category in this photo. Found: ${pieces.map(p=>p.name).join(', ')}. Change the item's category, or log the photo in your Diary to split it into pieces.`:'No clothing piece found in this photo — it may already be cut out.');return}
   const old=x.photo;x.original=old;x.photo=p.photo;if(!await save()){x.photo=old;delete x.original}render()}
- catch(e){alert('Could not cut out the piece: '+e.message)}finally{btn.disabled=false;btn.textContent='✂️ Cut out'}}
-
-// ---------- Claude AI (optional, user's own key) ----------
-const AI_MODEL='claude-sonnet-5-5';const AI_KEY='stylebook-claude-key';
-function getKey(){try{return localStorage.getItem(AI_KEY)||''}catch(e){return ''}}
-function showKeyStatus(){const k=getKey();$('ai-status').textContent=k?'✅ AI stylist is on (key ending …'+k.slice(-4)+').':'AI stylist is off. Mix & Match will use the quick built-in matcher.'}
-function saveKey(){const v=$('ai-key').value.trim();if(!v){alert('Paste your key first.');return}try{localStorage.setItem(AI_KEY,v)}catch(e){alert('This browser blocked saving the key.');return}$('ai-key').value='';showKeyStatus()}
-function clearKey(){try{localStorage.removeItem(AI_KEY)}catch(e){}showKeyStatus()}
-async function askClaude(content,max=2000){const k=getKey();if(!k)throw Error('No API key saved');
- const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:AI_MODEL,max_tokens:max,messages:[{role:'user',content}]})});
- const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.error?.message||('HTTP '+r.status));
- const text=(j.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');const m=text.match(/\{[\s\S]*\}/);if(!m)throw Error('Unexpected reply from AI');return JSON.parse(m[0])}
+ catch(e){alert('Could not cut out the piece: '+e.message)}finally{btn.disabled=false;btn.textContent='Cut out'}}
 
 // ---------- Mix & Match ----------
 const COLOURS=['black','white','cream','ivory','beige','camel','tan','brown','chocolate','grey','gray','charcoal','navy','blue','denim','teal','turquoise','green','olive','khaki','sage','mint','emerald','red','burgundy','maroon','wine','pink','blush','rose','fuchsia','purple','lilac','lavender','plum','orange','rust','coral','peach','yellow','mustard','gold','silver','nude','taupe'];
@@ -199,25 +218,23 @@ const colourWords=t=>COLOURS.filter(c=>new RegExp('\\b'+c+'\\b','i').test(t||'')
 function recentDiary(days){const cut=new Date(Date.now()-days*864e5).toLocaleDateString('en-CA');return records.filter(r=>r.type==='diary'&&(!r.date||r.date>=cut))}
 async function mixMatch(){const closet=closetItems();const st=$('mm-status'),out=$('mm-results'),btn=$('mm-go');
  if(closet.length<2){st.textContent='Add at least a couple of pieces to your Closet first (or log an outfit with its pieces).';out.replaceChildren();return}
- const inspAll=records.filter(r=>r.type==='inspiration');const chosen=$('mm-insp').value;const insp=chosen?inspAll.filter(i=>String(i.id)===chosen):inspAll;const occasion=$('mm-occasion').value.trim();
- btn.disabled=true;out.replaceChildren();
- try{let looks,source;
-  if(getKey()){st.textContent='Your AI stylist is mixing outfits…';looks=await aiMix(closet,insp,occasion);source='AI stylist'}
-  else{looks=localMix(closet,insp);source='Quick match (no AI)'}
-  showLooks(looks,source);
-  st.textContent=looks.length?`${looks.length} outfit idea(s). Tap Mix & Match again for different ones.`:'Not enough pieces to build a full outfit yet. Add tops & bottoms, or dresses, to your Closet.';
- }catch(e){st.textContent='AI stylist failed ('+e.message+'). Showing quick matches instead.';showLooks(localMix(closet,insp),'Quick match (no AI)')}
- finally{btn.disabled=false}}
-async function aiMix(closet,insp,occasion){const content=[{type:'text',text:'You are my personal stylist. Build outfits using ONLY pieces from my closet below.\n\nMY CLOSET:'}];
- for(const [n,c] of closet.slice(0,80).entries()){content.push({type:'text',text:`id ${c.id}: ${c.title} — ${c.category}${c.notes?' — '+c.notes:''}`});if(c.photo&&n<40){try{content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:await shrink(c.photo,256)}})}catch(e){}}}
- content.push({type:'text',text:'\nMY INSPIRATION (follow its colours, mood and silhouettes):'});
- if(!insp.length)content.push({type:'text',text:'(none saved — use good colour harmony)'});
- for(const i of insp.slice(0,6)){content.push({type:'text',text:`"${i.title}"${i.notes?' — '+i.notes:''}`});if(i.photo){try{content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:await shrink(i.photo,512)}})}catch(e){}}}
- const byId=new Map(closet.map(c=>[String(c.id),c]));
- const worn=recentDiary(30).slice(0,12).map(d=>`${d.date||'recent'}: ${(d.pieces||[]).map(p=>byId.get(String(p))?.title).filter(Boolean).join(' + ')||d.title}`).join('\n');
- content.push({type:'text',text:`\nRECENTLY WORN (avoid repeating these combinations):\n${worn||'(nothing logged)'}\n${occasion?'\nOCCASION: '+occasion:''}\n\nSuggest 3 different complete outfits (top + bottom, or a dress, plus shoes/accessories when available). Use each closet id at most once per outfit, and only ids from my closet. Reply with JSON only: {"outfits":[{"name":"short catchy name","items":[ids],"why":"one or two sentences linking it to my inspiration","inspiration":"title of the inspiration it follows"}]}`});
- const res=await askClaude(content,1500);
- return (res.outfits||[]).map(o=>({name:o.name||'Outfit idea',why:o.why||'',insp:o.inspiration||'',items:[...new Set((o.items||[]).map(String))].map(id=>byId.get(id)).filter(Boolean)})).filter(o=>o.items.length>=2)}
+ const looks=localMix(closet,selectedInspiration());showLooks(looks,'Quick idea');
+ st.textContent=looks.length?`${looks.length} outfit idea(s). Tap Quick ideas again for different ones, or send your closet to Claude for styled boards.`:'Not enough pieces to build a full outfit yet. Add tops & bottoms, or dresses, to your Closet.'}
+function selectedInspiration(){const all=records.filter(r=>r.type==='inspiration'),c=$('mm-insp').value;return c?all.filter(i=>String(i.id)===c):all}
+function toggleMix(){const p=$('mixpanel');p.hidden=!p.hidden;if(!p.hidden){p.scrollIntoView({behavior:'smooth',block:'start'});if(!$('mm-results').children.length)mixMatch()}else{$('mm-results').replaceChildren()}}
+// Packs the closet (small cut-out photos), inspiration and recent outfits into one file to attach in a Claude chat.
+async function exportForClaude(btn){const closet=closetItems();if(!closet.length){alert('Your Closet is empty — add some pieces first.');return}
+ btn.disabled=true;const label=btn.textContent;btn.textContent='Packing your closet…';
+ try{const small=async src=>{if(!src)return '';try{return 'data:image/jpeg;base64,'+await shrink(src,360)}catch(e){return ''}};
+  const byId=new Map(closet.map(c=>[c.id,c]));const occasion=$('mm-occasion').value.trim();const chosen=$('mm-insp').value;
+  const data={about:'My Style Book export for Claude. Please suggest mix & match outfits using ONLY the closet pieces below (refer to them by id and title), following my inspiration and avoiding recently worn combinations, and sketch each outfit as a visual board using the pieces\' photos.',
+   exported:today(),request:{occasion:occasion||null,follow_inspiration:chosen?(records.find(r=>String(r.id)===chosen)||{}).title:'all'},
+   closet:[],inspiration:[],recently_worn:recentDiary(30).slice(0,15).map(d=>({date:d.date,title:d.title,pieces:(d.pieces||[]).map(id=>byId.get(id)?.title).filter(Boolean)}))};
+  for(const c of closet)data.closet.push({id:String(c.id),title:c.title,category:c.category,notes:c.notes||'',photo:await small(c.photo)});
+  for(const i of records.filter(r=>r.type==='inspiration'))data.inspiration.push({title:i.title,notes:i.notes||'',photo:await small(i.photo)});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));a.download='my-closet-for-claude.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  $('mm-status').textContent='Saved my-closet-for-claude.json. Attach it in your stylebook chat with Claude and ask for mix & match ideas.'}
+ catch(e){alert('Could not pack your closet: '+e.message)}finally{btn.disabled=false;btn.textContent=label}}
 function localMix(closet,insp){const target=new Set(insp.flatMap(i=>colourWords(i.title+' '+i.notes)));const by=c=>closet.filter(x=>x.category===c);
  const recent=recentDiary(14).map(d=>new Set((d.pieces||[]).map(String)));
  const score=it=>{const cw=colourWords(it.title+' '+it.notes);return cw.filter(c=>target.has(c)).length*2+(cw.length?0:.3)};
@@ -234,8 +251,8 @@ function showLooks(looks,source){const out=$('mm-results');out.replaceChildren()
  for(const l of looks){const card=document.createElement('div');card.className='look';card.append(thumbGrid(l.items));const info=document.createElement('div');info.className='info';
   const badge=document.createElement('div');badge.className='badge';badge.textContent=source+(l.insp?' · inspired by '+l.insp:'');const h=document.createElement('h3');h.textContent=l.name;
   const tags=document.createElement('div');for(const it of l.items){const s=document.createElement('span');s.className='tag';s.textContent=it.title;tags.append(s)}
-  const p=document.createElement('p');p.textContent=l.why;const b=document.createElement('button');b.className='primary';b.textContent='📅 I wore this today';
-  b.onclick=async()=>{const old=records.slice();records.unshift({id:Date.now(),type:'diary',title:l.name,category:'',date:today(),notes:'From Mix & Match',photo:'',pieces:l.items.map(i=>i.id)});if(!await save()){records=old;return}render();b.disabled=true;b.textContent='✓ Added to your Diary'};
+  const p=document.createElement('p');p.textContent=l.why;const b=document.createElement('button');b.className='primary';b.textContent='I wore this today';
+  b.onclick=async()=>{const old=records.slice();records.unshift({id:Date.now(),type:'diary',title:l.name,category:'',date:today(),notes:'From Mix & Match',photo:'',pieces:l.items.map(i=>i.id)});if(!await save()){records=old;return}render();b.disabled=true;b.textContent='Added to your Diary'};
   info.append(badge,h,tags,p,b);card.append(info);out.append(card)}}
 
 // Google Identity Services OAuth token flow; no client secret in this public website.
@@ -281,7 +298,7 @@ async function showDrive(){
   const img=document.createElement('img');img.alt=f.name;img.loading='lazy';img.style.minHeight='90px';img.style.background='#f8edf2';card.append(img);
   const info=document.createElement('div');info.className='info';const name=document.createElement('b');name.textContent=f.name;info.append(name);
   const actions=document.createElement('div');actions.className='drive-actions';
-  for(const [type,label] of [['closet','👗 Closet'],['diary','📅 Diary'],['inspiration','🎨 Ideas']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>importDrive(f,type,b);actions.append(b)}
+  for(const [type,label] of [['closet','Closet'],['diary','Diary'],['inspiration','Ideas']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>importDrive(f,type,b);actions.append(b)}
   info.append(actions);card.append(info);box.append(card);
   // Fetch the original photo with OAuth, not a publicly shared URL.
   try{const blob=await driveImage(f);const url=URL.createObjectURL(blob);driveUrls.push(url);img.src=url}catch(e){img.alt='Could not display '+f.name;img.style.minHeight='0'}
@@ -294,7 +311,7 @@ async function importDrive(f,type,button){
   if(records.some(x=>x.driveId===f.id&&x.type===type)&&!confirm('This photo is already in your '+(type==='diary'?'Diary':'Closet')+'. Add it again?'))return;
   button.disabled=true;button.textContent='Opening…';
   try{const photo=await blobToDataURL(await driveImage(f));showTab(type);add(type);pendingPhoto=photo;pendingDriveId=f.id;showPreview();$('title').value=f.name.replace(/\.[^.]+$/,'');$('title').dataset.auto='1';$('notes').value='Imported from original Google Drive photo: '+f.name;autoDetect()}
-  catch(e){alert('Could not open photo: '+e.message)}finally{button.disabled=false;button.textContent=type==='diary'?'📅 Diary':'👗 Closet'}
+  catch(e){alert('Could not open photo: '+e.message)}finally{button.disabled=false;button.textContent=type==='diary'?'Diary':'Closet'}
   return}
  const title=prompt('Name this '+({closet:'clothing item',inspiration:'inspiration'}[type])+':',f.name.replace(/\.[^.]+$/,''));if(title===null||!title.trim())return;
  let category='Other',date='',notes='Imported from original Google Drive photo: '+f.name;
@@ -305,7 +322,7 @@ async function importDrive(f,type,button){
   const blob=await driveImage(f);const photo=await blobToDataURL(blob);
   const item={id:Date.now()+Math.random(),type,title:title.trim(),category,date,notes,photo,driveId:f.id};
   records.unshift(item);if(!await save()){records.shift();return}render();alert('Saved to '+({closet:'Closet',inspiration:'Ideas'}[type])+'!');
- }catch(e){alert('Could not import photo: '+e.message)}finally{button.disabled=false;button.textContent=({closet:'👗 Closet',diary:'📅 Diary',inspiration:'🎨 Ideas'}[type])}
+ }catch(e){alert('Could not import photo: '+e.message)}finally{button.disabled=false;button.textContent=({closet:'Closet',diary:'Diary',inspiration:'Ideas'}[type])}
 }
 function disconnectDrive(){if(driveToken&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(driveToken,()=>{});driveToken='';driveFiles=[];driveControls(false);for(const u of driveUrls)URL.revokeObjectURL(u);driveUrls=[];$('drivegrid').replaceChildren();driveStatus('Disconnected. Photos already imported into your browser remain saved.')}
 
