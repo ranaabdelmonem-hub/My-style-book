@@ -1,13 +1,14 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Style Book</title>
-<style>:root{font-family:system-ui,sans-serif;color:#292334;background:#fff8fa}*{box-sizing:border-box}body{margin:0 auto;max-width:650px;padding:20px 16px 100px}header{text-align:center;padding:12px 0 20px}h1{font-family:Georgia,serif;margin:4px;font-size:32px}small,.muted{color:#7f7380}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;position:sticky;top:0;background:#fff8fa;padding:12px 0;z-index:2}button,.btn{border:0;border-radius:22px;padding:11px 8px;background:#f2e8ed;color:#483746;cursor:pointer;font-weight:600}button.active,.primary{background:#ed638e;color:white}.board{display:none}.board.active{display:block}.grid{columns:2;column-gap:12px}.card{break-inside:avoid;background:white;border-radius:15px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px #b38a9a22}.card img{display:block;width:100%;height:auto}.card .info{padding:10px;font-size:13px}.card b{display:block}.controls{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}.panel{background:white;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 2px 12px #b38a9a22}input,select,textarea{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #e6dce1;border-radius:10px;font:inherit}label{font-size:13px;font-weight:600}a{color:#a93364}.empty{color:#877c86;padding:30px 8px;text-align:center}.delete{background:transparent;color:#ad4866;font-size:12px;padding:4px 0}.hint{font-size:12px;color:#776975}h2{font-family:Georgia,serif}#form{display:none}</style>
+<style>:root{font-family:system-ui,sans-serif;color:#292334;background:#fff8fa}*{box-sizing:border-box}body{margin:0 auto;max-width:650px;padding:20px 16px 100px}header{text-align:center;padding:12px 0 20px}h1{font-family:Georgia,serif;margin:4px;font-size:32px}small,.muted{color:#7f7380}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;position:sticky;top:0;background:#fff8fa;padding:12px 0;z-index:2}button,.btn{border:0;border-radius:22px;padding:11px 8px;background:#f2e8ed;color:#483746;cursor:pointer;font-weight:600}button.active,.primary{background:#ed638e;color:white}.board{display:none}.board.active{display:block}.grid{columns:2;column-gap:12px}.card{break-inside:avoid;background:white;border-radius:15px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px #b38a9a22}.card img{display:block;width:100%;height:auto}.card .info{padding:10px;font-size:13px}.card b{display:block}.controls{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}.panel{background:white;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 2px 12px #b38a9a22}input,select,textarea{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #e6dce1;border-radius:10px;font:inherit}label{font-size:13px;font-weight:600}a{color:#a93364}.empty{color:#877c86;padding:30px 8px;text-align:center}.delete{background:transparent;color:#ad4866;font-size:12px;padding:4px 0}.hint{font-size:12px;color:#776975}.drive-actions{display:flex;gap:6px;flex-wrap:wrap;padding:8px}.drive-actions button{font-size:12px;padding:8px}.drive-tag{font-size:11px;color:#786675;padding:0 10px 8px}.drive-panel{border:1px solid #f1dce6}.status{line-height:1.5}h2{font-family:Georgia,serif}#form{display:none}</style>
 <header><div>💗</div><h1>My Style Book</h1><small>Your wardrobe · Your outfits · Your inspiration</small></header>
 <nav class="tabs"><button class="active" data-tab="closet">👗 Closet</button><button data-tab="diary">📅 Diary</button><button data-tab="inspiration">🎨 Ideas</button><button data-tab="stylist">✨ Stylist</button></nav>
 <section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">＋ Add clothing</button><select id="filter" style="width:auto;margin:0" onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div class="grid" id="closetgrid"></div></section>
-<section id="diary" class="board"><h2>Outfit Diary</h2><div class="controls"><button class="primary" onclick="add('diary')">＋ Log outfit</button></div><div class="grid" id="diarygrid"></div></section>
+<div class="panel drive-panel"><b>☁️ Google Drive wardrobe photos</b><p class="hint">Connect your Google account to see original pictures from your private Wardrobe catalogue folder. Drive photos are displayed here on demand; they are not published on GitHub. Select Add to Closet, Diary or Ideas to save a copy locally in this browser.</p><div class="controls"><button id="drive-connect" class="primary" type="button" onclick="connectDrive()">Connect Google Drive</button><button type="button" onclick="loadDrive()" id="drive-refresh" hidden>↻ Refresh photos</button><button type="button" onclick="disconnectDrive()" id="drive-disconnect" hidden>Disconnect</button></div><p class="hint status" id="drive-status">Not connected. Your existing wardrobe entries are safe.</p><div class="grid" id="drivegrid"></div></div><section id="diary" class="board"><h2>Outfit Diary</h2><div class="controls"><button class="primary" onclick="add('diary')">＋ Log outfit</button></div><div class="grid" id="diarygrid"></div></section>
 <section id="inspiration" class="board"><h2>My Inspiration</h2><div class="controls"><button class="primary" onclick="add('inspiration')">＋ Add inspiration</button></div><div class="grid" id="inspirationgrid"></div></section>
 <section id="stylist" class="board"><h2>My AI Stylist</h2><div class="panel"><p>Ask ChatGPT to suggest outfits using your closet, wear history and colour inspiration.</p><p><a class="btn primary" href="https://chatgpt.com/" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">Open ChatGPT ↗</a></p><p class="hint">This button opens ChatGPT separately. Your entries in this prototype are not automatically shared with ChatGPT.</p></div><div class="panel"><b>Try asking:</b><p>“Suggest an outfit inspired by chocolate brown and blue, avoiding recently worn combinations.”</p></div></section>
 <div class="panel" id="form"><h2 id="formtitle">Add photo</h2><form id="entryform"><label>Original photo (kept unchanged)</label><input type="file" id="photo" accept="image/*"><label>Title / description</label><input id="title" required placeholder="e.g. Olive wide-leg trousers"><div id="categorybox"><label>Category</label><select id="category"><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div id="datebox" hidden><label>Date worn</label><input id="date" type="date"></div><label>Colours, notes or clothing IDs</label><textarea id="notes" rows="2"></textarea><div class="controls"><button type="submit" class="primary">Save</button><button type="button" onclick="document.getElementById('form').style.display='none'">Cancel</button></div></form></div>
-<div class="panel"><b>Storage status</b><p class="hint" id="storage-status">Checking browser storage…</p></div><div class="panel"><b>About your photos</b><p class="hint">This first prototype keeps photos unchanged and stores entries locally in this browser. It is not yet connected to Google Drive or a shared cloud database. Browser storage can be lost if you clear site data. Export a backup regularly.</p><button onclick="exportData()">Export catalogue backup</button><label style="display:block;margin-top:12px">Restore catalogue backup</label><input type="file" id="restore" accept="application/json" onchange="restoreData(this)"></div>
+<div class="panel"><b>Storage status</b><p class="hint" id="storage-status">Checking browser storage…</p></div><div class="panel"><b>About your photos</b><p class="hint">Imported photos are saved locally in this browser. Google Drive pictures are fetched privately after you sign in; they are not uploaded to GitHub. This is not a cloud-synced catalogue database: new Drive photos appear when you tap Refresh, and you choose which to import. Browser storage can be lost if you clear site data. Export a backup regularly.</p><button onclick="exportData()">Export catalogue backup</button><label style="display:block;margin-top:12px">Restore catalogue backup</label><input type="file" id="restore" accept="application/json" onchange="restoreData(this)"></div>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 let records=[];let current='closet';const key='my-style-book-v2';let db=null;let persistence='none';
 function openDB(){return new Promise((resolve,reject)=>{try{let req=indexedDB.open('MyStyleBook',1);req.onupgradeneeded=()=>{req.result.createObjectStore('data')};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)}catch(e){reject(e)}})}
@@ -20,6 +21,72 @@ async function save(){try{if(persistence==='indexeddb'){await new Promise((resol
 document.getElementById('entryform').onsubmit=async e=>{e.preventDefault();let f=document.getElementById('photo').files[0];let photo='';if(f){photo=await new Promise((ok,no)=>{let r=new FileReader;r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(f)})}let item={id:Date.now(),type:current,title:document.getElementById('title').value,category:document.getElementById('category').value,date:document.getElementById('date').value,notes:document.getElementById('notes').value,photo};records.unshift(item);if(!await save()){records.shift();return}document.getElementById('form').style.display='none';render();alert('Saved! Your item is now in My Closet / Diary / Inspiration.')};
 function render(){for(let type of ['closet','diary','inspiration']){let box=document.getElementById(type+'grid');box.replaceChildren();let items=records.filter(x=>x.type===type&&(type!=='closet'||document.getElementById('filter').value==='All categories'||x.category===document.getElementById('filter').value));if(!items.length){let d=document.createElement('p');d.className='empty';d.textContent='Your photo gallery starts here. Tap Add to create your first pin.';box.append(d)}for(let x of items){let card=document.createElement('div');card.className='card';if(x.photo){let img=document.createElement('img');img.src=x.photo;img.alt=x.title;card.append(img)}let info=document.createElement('div');info.className='info';let title=document.createElement('b');title.textContent=x.title;info.append(title);let meta=document.createElement('div');meta.className='muted';meta.textContent=[x.date,x.category&&type==='closet'?x.category:'',x.notes].filter(Boolean).join(' · ');info.append(meta);let del=document.createElement('button');del.className='delete';del.textContent='Remove';del.onclick=async()=>{if(confirm('Remove this entry?')){let old=records;records=records.filter(r=>r.id!==x.id);if(!await save())records=old;render()}};info.append(del);card.append(info);box.append(card)}}}
 function exportData(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(records)],{type:'application/json'}));a.download='my-style-book-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
-async async function restoreData(el){if(!el.files[0])return;try{let v=JSON.parse(await el.files[0].text());if(!Array.isArray(v))throw Error();if(!confirm('Replace the current catalogue with this backup?'))return;let old=records;records=v;if(!await save())records=old;render()}catch(e){alert('Could not read backup file')}}
+async function restoreData(el){if(!el.files[0])return;try{let v=JSON.parse(await el.files[0].text());if(!Array.isArray(v))throw Error();if(!confirm('Replace the current catalogue with this backup?'))return;let old=records;records=v;if(!await save())records=old;render()}catch(e){alert('Could not read backup file')}}
+
+// Google Identity Services OAuth token flow; no client secret in this public website.
+const DRIVE_CLIENT_ID='951717146589-222lmq4pqf2m0rcjv9g13g588ftj7pgj.apps.googleusercontent.com';
+const DRIVE_FOLDER='1xJzd_3mNoo4LZwA5-I6gZcFNiMvPiJ-M';
+const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.readonly';
+let driveToken='', driveClient=null, driveFiles=[], driveUrls=[];
+const driveStatus=(msg)=>{document.getElementById('drive-status').textContent=msg};
+function driveControls(on){document.getElementById('drive-connect').hidden=on;document.getElementById('drive-refresh').hidden=!on;document.getElementById('drive-disconnect').hidden=!on}
+function connectDrive(){
+ if(!window.google?.accounts?.oauth2){driveStatus('Google sign-in has not loaded. Check your connection and refresh this page.');return}
+ try{
+  if(!driveClient)driveClient=google.accounts.oauth2.initTokenClient({client_id:DRIVE_CLIENT_ID,scope:DRIVE_SCOPE,callback:async r=>{if(r.error||!r.access_token){driveStatus('Google did not authorize access: '+(r.error||'No access token'));return}driveToken=r.access_token;driveControls(true);await loadDrive()}});
+  driveClient.requestAccessToken({prompt:'consent'});
+ }catch(e){driveStatus('Could not start Google sign-in: '+e.message)}
+}
+async function driveRequest(url){
+ const r=await fetch(url,{headers:{Authorization:'Bearer '+driveToken}});
+ if(!r.ok){let message='HTTP '+r.status;try{const j=await r.json();message=j.error?.message||message}catch{}if(r.status===401){driveToken='';driveControls(false)}throw Error(message)}return r;
+}
+async function loadDrive(){
+ if(!driveToken){driveStatus('Tap Connect Google Drive first.');return}
+ driveStatus('Loading photos from Google Drive…');
+ try{
+  let list=[],page='';
+  do{
+   const q=`'${DRIVE_FOLDER}' in parents and trashed = false and mimeType contains 'image/'`;
+   const params=new URLSearchParams({q,fields:'nextPageToken,files(id,name,mimeType,createdTime,thumbnailLink)',pageSize:'100',orderBy:'name'});
+   if(page)params.set('pageToken',page);
+   const data=await (await driveRequest('https://www.googleapis.com/drive/v3/files?'+params)).json();
+   list.push(...(data.files||[]));page=data.nextPageToken||'';
+  }while(page&&list.length<1000);
+  driveFiles=list;await showDrive();
+  driveStatus(list.length?`${list.length} photo(s) found. Choose where to add each one. Refresh to check for new photos.`:'No image files returned. Check that you signed in with the account owning the folder, and that the folder is in My Drive.');
+ }catch(e){driveStatus('Could not load Drive photos: '+e.message+'. You may need to reconnect or review the Google authorization settings.')}
+}
+async function driveImage(file){const response=await driveRequest('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(file.id)+'?alt=media');return await response.blob()}
+async function showDrive(){
+ for(const u of driveUrls)URL.revokeObjectURL(u);driveUrls=[];
+ const box=document.getElementById('drivegrid');box.replaceChildren();
+ for(const f of driveFiles){
+  const card=document.createElement('div');card.className='card';
+  const img=document.createElement('img');img.alt=f.name;img.loading='lazy';img.style.minHeight='90px';img.style.background='#f8edf2';card.append(img);
+  const info=document.createElement('div');info.className='info';const name=document.createElement('b');name.textContent=f.name;info.append(name);
+  const actions=document.createElement('div');actions.className='drive-actions';
+  for(const [type,label] of [['closet','👗 Closet'],['diary','📅 Diary'],['inspiration','🎨 Ideas']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>importDrive(f,type,b);actions.append(b)}
+  info.append(actions);card.append(info);box.append(card);
+  // Fetch the original photo with OAuth, not a publicly shared URL.
+  try{const blob=await driveImage(f);const url=URL.createObjectURL(blob);driveUrls.push(url);img.src=url}catch(e){img.alt='Could not display '+f.name;img.style.minHeight='0'}
+ }
+}
+function blobToDataURL(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)})}
+async function importDrive(f,type,button){
+ const title=prompt('Name this '+({closet:'clothing item',diary:'outfit',inspiration:'inspiration'}[type])+':',f.name.replace(/\.[^.]+$/,''));if(title===null||!title.trim())return;
+ let category='Other',date='',notes='Imported from original Google Drive photo: '+f.name;
+ if(type==='closet'){const entered=prompt('Category: Tops, Bottoms, Dresses, Shoes, Accessories or Other','Tops');if(entered===null)return;category=['Tops','Bottoms','Dresses','Shoes','Accessories','Other'].find(x=>x.toLowerCase()===entered.trim().toLowerCase())||'Other'}
+ if(type==='diary'){date=prompt('Date worn (YYYY-MM-DD), or leave blank if not worn:',new Date().toISOString().slice(0,10));if(date===null)return}
+ button.disabled=true;button.textContent='Saving…';
+ try{
+  if(records.some(x=>x.driveId===f.id&&x.type===type)){alert('This photo is already saved in '+type+'.');return}
+  const blob=await driveImage(f);const photo=await blobToDataURL(blob);
+  const item={id:Date.now()+Math.random(),type,title:title.trim(),category,date,notes,photo,driveId:f.id};
+  records.unshift(item);if(!await save()){records.shift();return}render();alert('Saved to '+({closet:'Closet',diary:'Diary',inspiration:'Ideas'}[type])+'!');
+ }catch(e){alert('Could not import photo: '+e.message)}finally{button.disabled=false;button.textContent=({closet:'👗 Closet',diary:'📅 Diary',inspiration:'🎨 Ideas'}[type])}
+}
+function disconnectDrive(){if(driveToken&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(driveToken,()=>{});driveToken='';driveFiles=[];driveControls(false);for(const u of driveUrls)URL.revokeObjectURL(u);driveUrls=[];document.getElementById('drivegrid').replaceChildren();driveStatus('Disconnected. Photos already imported into your browser remain saved.')}
+
 init();
 </script></html>
