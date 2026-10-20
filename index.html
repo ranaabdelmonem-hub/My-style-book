@@ -54,11 +54,13 @@ a{color:var(--accent)}
 .look{background:var(--card);border-radius:22px;padding:10px;margin:14px 0}.look .info{padding:14px 6px 6px}.look h3{font-family:'Italiana',serif;font-weight:400;font-size:26px;margin:0 0 4px}.look p{margin:8px 0 12px;font-size:14px}
 .badge{font-size:12px;color:var(--accent);font-weight:700}
 details summary{cursor:pointer;color:var(--ink);margin-top:6px}
+.panel button:not(.primary):not(.chip):not(.delete){background:var(--soft)}
+#catchips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}#catchips .chip{flex:none}
 .settings{margin-top:48px}.settings h2{font-size:26px}
 </style>
 <header><h1>My Style Book</h1><small>Your wardrobe, outfits and inspiration</small></header>
 <nav class="tabs"><button class="active" data-tab="closet">Closet</button><button data-tab="diary">Diary</button><button data-tab="inspiration">Ideas</button></nav>
-<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">Add clothing</button><button onclick="toggleMix()">Mix &amp; Match</button></div><div class="chips" id="catchips"></div><select id="filter" hidden onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select><div id="mixpanel" class="panel" hidden><h3 style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0">Mix &amp; Match</h3><p class="hint">Outfit ideas from your own closet, following your Ideas board and skipping what you've worn lately.</p>
+<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">Add clothing</button><button onclick="toggleMix()">Mix &amp; Match</button></div><div class="panel cutall" id="cutall" hidden><p id="cutall-text" style="margin:0 0 12px"></p><button class="primary" id="cutall-btn" onclick="cutAll()">Cut them all out</button><p class="hint" id="cutall-status" style="margin:10px 0 0"></p></div><div class="chips" id="catchips"></div><select id="filter" hidden onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select><div id="mixpanel" class="panel" hidden><h3 style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0">Mix &amp; Match</h3><p class="hint">Outfit ideas from your own closet, following your Ideas board and skipping what you've worn lately.</p>
 <label>Inspiration to follow</label><select id="mm-insp"></select>
 <label>Occasion (optional)</label><input id="mm-occasion" placeholder="e.g. work, dinner out, weekend brunch">
 <div class="controls" style="margin:4px 0"><button class="primary" id="mm-go" onclick="mixMatch()">Quick ideas</button><button onclick="exportForClaude(this)">Send my closet to Claude</button></div>
@@ -147,7 +149,7 @@ async function save(){try{if(persistence==='indexeddb'){await new Promise((resol
 function thumbGrid(items){const g=document.createElement('div');g.className='thumbs';for(const it of items.slice(0,6)){if(it&&it.photo){const i=document.createElement('img');i.src=it.photo;i.alt=it.title;g.append(i)}else{const d=document.createElement('div');d.textContent=it?it.title:'?';g.append(d)}}return g}
 function renderCatChips(){const box=$('catchips'),cur=$('filter').value;box.replaceChildren();
  for(const c of ['All categories',...CATS]){const b=document.createElement('button');b.type='button';b.className='chip'+(c===cur?' on':'');b.textContent=c==='All categories'?'All':c;b.setAttribute('aria-pressed',c===cur);b.onclick=()=>{$('filter').value=c;render()};box.append(b)}}
-function render(){renderCatChips();const byId=new Map(records.map(r=>[r.id,r]));
+function render(){renderCatChips();renderCutBanner();const byId=new Map(records.map(r=>[r.id,r]));
  for(let type of ['closet','diary','inspiration']){let box=$(type+'grid');box.replaceChildren();let items=records.filter(x=>x.type===type&&(type!=='closet'||$('filter').value==='All categories'||x.category===$('filter').value));if(!items.length){let d=document.createElement('p');d.className='empty';d.textContent={closet:'Your closet is empty. Add a piece, or log an outfit and its pieces land here.',diary:'No outfits logged yet. Log what you wore and its pieces go into your Closet.',inspiration:'Save looks, colours and moods you love. Mix & Match follows them.'}[type];box.append(d)}
  for(let x of items){let card=document.createElement('div');card.className='card';const pieces=(x.pieces||[]).map(id=>byId.get(id)).filter(Boolean);
   if(x.photo){let img=document.createElement('img');img.src=x.photo;img.alt=x.title;card.append(img)}else if(pieces.length){card.append(thumbGrid(pieces))}
@@ -155,7 +157,7 @@ function render(){renderCatChips();const byId=new Map(records.map(r=>[r.id,r]));
   if(pieces.length){const t=document.createElement('div');for(const p of pieces){const s=document.createElement('span');s.className='tag';s.textContent=p.title;t.append(s)}info.append(t)}
   let del=document.createElement('button');del.className='delete';del.textContent='Remove';del.onclick=async()=>{if(confirm('Remove this entry?'+(type==='diary'&&pieces.length?' (The pieces stay in your Closet.)':''))){let old=records;records=records.filter(r=>r.id!==x.id);if(!await save())records=old;render()}};const acts=document.createElement('div');acts.className='cardacts';acts.append(del);
   if(type==='closet'&&x.photo){const c=document.createElement('button');c.className='delete';
-   if(x.original){c.textContent='Back to original photo';c.onclick=async()=>{x.photo=x.original;delete x.original;await save();render()}}
+   if(x.original){c.textContent='Back to original photo';c.onclick=async()=>{x.photo=x.original;delete x.original;x.cutChecked=true;await save();render()}}
    else{c.textContent='Cut out';c.onclick=()=>cutOutItem(x,c)}
    acts.append(c)}
   info.append(acts);card.append(info);box.append(card)}}
@@ -208,9 +210,24 @@ function cutout(img,m,w,h,x0,y0,x1,y1){const px=Math.round((x1-x0)*.06)+2,py=Mat
  return{photo:o.toDataURL('image/jpeg',.9),rgb:k?[r/k,g/k,b/k]:[128,128,128]}}
 async function cutOutItem(x,btn){btn.disabled=true;btn.textContent=segReady?'Cutting out…':'Loading detector…';
  try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);
-  if(!p){alert(pieces.length?`Couldn't find a piece in the "${x.category}" category in this photo. Found: ${pieces.map(p=>p.name).join(', ')}. Change the item's category, or log the photo in your Diary to split it into pieces.`:'No clothing piece found in this photo — it may already be cut out.');return}
+  if(!p){x.cutChecked=true;await save();render();alert(pieces.length?`Couldn't find a piece in the "${x.category}" category in this photo. Found: ${pieces.map(p=>p.name).join(', ')}. Change the item's category, or log the photo in your Diary to split it into pieces.`:'No clothing piece found in this photo — it may already be cut out.');return}
   const old=x.photo;x.original=old;x.photo=p.photo;if(!await save()){x.photo=old;delete x.original}render()}
  catch(e){alert('Could not cut out the piece: '+e.message)}finally{btn.disabled=false;btn.textContent='Cut out'}}
+// Pieces still showing a whole photo: not cut out yet, and not already checked.
+function uncutItems(){return closetItems().filter(x=>x.photo&&!x.original&&!x.cutChecked)}
+let cuttingAll=false;
+async function cutAll(){if(cuttingAll)return;const list=uncutItems();if(!list.length)return;cuttingAll=true;const btn=$('cutall-btn'),st=$('cutall-status');btn.disabled=true;
+ let done=0,skipped=0;
+ try{for(const [i,x] of list.entries()){st.textContent=(segReady?'':'Loading the detector (first time only)… ')+`Cutting out ${i+1} of ${list.length}: ${x.title}`;
+   try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);
+    if(p){x.original=x.photo;x.photo=p.photo;done++}else{x.cutChecked=true;skipped++}
+    await save();render()}catch(e){skipped++;if(i===0&&!segReady)throw e}}
+  st.textContent=`Done: ${done} piece(s) cut out`+(skipped?`, ${skipped} left as they were (no matching piece found — use Cut out on the card after checking its category).`:'.')}
+ catch(e){st.textContent='Could not load the detector: '+e.message+'. Check your connection and try again.'}
+ finally{cuttingAll=false;btn.disabled=false;renderCutBanner()}}
+function renderCutBanner(){const n=uncutItems().length,box=$('cutall');if(cuttingAll)return;
+ if(!n){if(!$('cutall-status').textContent.startsWith('Done'))box.hidden=true;$('cutall-btn').hidden=true;return}
+ box.hidden=false;$('cutall-btn').hidden=false;$('cutall-text').textContent=`${n} piece${n>1?'s':''} still show the whole photo. Cut them out so each piece stands alone.`}
 
 // ---------- Mix & Match ----------
 const COLOURS=['black','white','cream','ivory','beige','camel','tan','brown','chocolate','grey','gray','charcoal','navy','blue','denim','teal','turquoise','green','olive','khaki','sage','mint','emerald','red','burgundy','maroon','wine','pink','blush','rose','fuchsia','purple','lilac','lavender','plum','orange','rust','coral','peach','yellow','mustard','gold','silver','nude','taupe'];
