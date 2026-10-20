@@ -56,6 +56,9 @@ a{color:var(--accent)}
 details summary{cursor:pointer;color:var(--ink);margin-top:6px}
 .panel button:not(.primary):not(.chip):not(.delete){background:var(--soft)}
 #catchips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}#catchips .chip{flex:none}
+dialog#dupdialog{border:0;border-radius:24px;padding:22px;max-width:440px;width:calc(100% - 32px);color:var(--ink);background:var(--card);box-shadow:0 20px 60px rgba(67,35,58,.25)}dialog#dupdialog::backdrop{background:rgba(67,35,58,.45)}
+.dup-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dup-pair figure{margin:0}.dup-pair img{width:100%;aspect-ratio:3/4;object-fit:contain;background:var(--soft);border-radius:16px;display:block}.dup-pair figcaption{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}.dup-pair b{color:var(--ink)}
+#dupdialog .controls button{flex:1 1 160px}#dupdialog button:not(.primary){background:var(--soft)}
 .settings{margin-top:48px}.settings h2{font-size:26px}
 </style>
 <header><h1>My Style Book</h1><small>Your wardrobe, outfits and inspiration</small></header>
@@ -72,7 +75,9 @@ details summary{cursor:pointer;color:var(--ink);margin-top:6px}
 <div class="panel" id="form"><h2 id="formtitle">Add photo</h2><form id="entryform"><label>Original photo (kept unchanged)</label><input type="file" id="photo" accept="image/*"><div id="preview"></div><p class="autostatus" id="autostatus" hidden></p><div id="cropbox" hidden><label>Which piece is this?</label><div class="cropchoices" id="cropchoices"></div></div><label>Title / description</label><input id="title" required placeholder="e.g. Olive wide-leg trousers"><div id="categorybox"><label>Category</label><select id="category"><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div id="datebox" hidden><label>Date worn</label><input id="date" type="date"></div>
 <div id="piecesbox" hidden><label>Pieces in this outfit</label><p class="hint" style="margin:2px 0 6px">When you choose the photo, each piece is found and cut out automatically. Rename them if you like, ✕ any you don't want. New pieces go into your Closet when you save.</p><div id="existingwrap"><p class="hint" style="margin:6px 0 0">Already in your closet? Tap to tag:</p><div class="chips" id="existingpieces"></div></div><div id="newpieces"></div><div class="controls" style="margin:8px 0 14px"><button type="button" onclick="addPieceRow()">Add a piece</button></div></div>
 <label>Colours, notes or clothing IDs</label><textarea id="notes" rows="2"></textarea><div class="controls"><button type="submit" class="primary">Save</button><button type="button" onclick="document.getElementById('form').style.display='none'">Cancel</button></div></form></div>
-<section class="settings"><h2>Photos &amp; backup</h2><div class="panel drive-panel"><b>Google Drive wardrobe photos</b><p class="hint">Connect your Google account to see original pictures from your private Wardrobe catalogue folder. Drive photos are displayed here on demand; they are not published on GitHub. Select Add to Closet, Diary or Ideas to save a copy locally in this browser.</p><div class="controls"><button id="drive-connect" class="primary" type="button" onclick="connectDrive()">Connect Google Drive</button><button type="button" onclick="loadDrive()" id="drive-refresh" hidden>↻ Refresh photos</button><button type="button" onclick="disconnectDrive()" id="drive-disconnect" hidden>Disconnect</button></div><p class="hint status" id="drive-status">Not connected. Your existing wardrobe entries are safe.</p><div class="grid" id="drivegrid"></div></div><div class="panel"><b>Storage status</b><p class="hint" id="storage-status">Checking browser storage…</p></div><div class="panel"><b>About your photos</b><p class="hint">Imported photos are saved locally in this browser. Google Drive pictures are fetched privately after you sign in; they are not uploaded to GitHub. This is not a cloud-synced catalogue database: new Drive photos appear when you tap Refresh, and you choose which to import. Browser storage can be lost if you clear site data. Export a backup regularly.</p><button onclick="exportData()">Export catalogue backup</button><label style="display:block;margin-top:12px">Restore catalogue backup</label><input type="file" id="restore" accept="application/json" onchange="restoreData(this)"></div>
+<dialog id="dupdialog" aria-labelledby="dup-title"><h3 id="dup-title" style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0 0 6px"></h3><p class="hint" style="margin:0 0 14px">This looks like a piece already in your Closet. Same piece or a different one?</p><div class="dup-pair"><figure><img id="dup-old" alt="In your closet"><figcaption>In your closet<br><b id="dup-oldname"></b></figcaption></figure><figure><img id="dup-new" alt="New photo"><figcaption>Adding now<br><b id="dup-newname"></b></figcaption></figure></div><div class="controls" style="margin-bottom:0"><button class="primary" id="dup-same"></button><button id="dup-new-btn">It's a different piece</button></div></dialog>
+<section class="settings"><h2>Photos &amp; backup</h2>
+<div class="panel" id="mepanel"><b>My try-on photo</b><p class="hint">Used by "Try it on" to show Mix &amp; Match outfits on you with Gemini. A full-length photo, standing straight in good light, works best. It stays in this browser.</p><div id="mepreview"></div><input type="file" id="mephoto" accept="image/*" aria-label="Choose my try-on photo"></div><div class="panel drive-panel"><b>Google Drive wardrobe photos</b><p class="hint">Connect your Google account to see original pictures from your private Wardrobe catalogue folder. Drive photos are displayed here on demand; they are not published on GitHub. Select Add to Closet, Diary or Ideas to save a copy locally in this browser.</p><div class="controls"><button id="drive-connect" class="primary" type="button" onclick="connectDrive()">Connect Google Drive</button><button type="button" onclick="loadDrive()" id="drive-refresh" hidden>↻ Refresh photos</button><button type="button" onclick="disconnectDrive()" id="drive-disconnect" hidden>Disconnect</button></div><p class="hint status" id="drive-status">Not connected. Your existing wardrobe entries are safe.</p><div class="grid" id="drivegrid"></div></div><div class="panel"><b>Storage status</b><p class="hint" id="storage-status">Checking browser storage…</p></div><div class="panel"><b>About your photos</b><p class="hint">Imported photos are saved locally in this browser. Google Drive pictures are fetched privately after you sign in; they are not uploaded to GitHub. This is not a cloud-synced catalogue database: new Drive photos appear when you tap Refresh, and you choose which to import. Browser storage can be lost if you clear site data. Export a backup regularly.</p><button onclick="exportData()">Export catalogue backup</button><label style="display:block;margin-top:12px">Restore catalogue backup</label><input type="file" id="restore" accept="application/json" onchange="restoreData(this)"></div>
 </section>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
@@ -82,7 +87,7 @@ let pendingPhoto='',pendingDriveId='',pendingCrop='',tagged=new Set(),rowPhotos=
 const $=id=>document.getElementById(id);
 const today=()=>new Date().toLocaleDateString('en-CA');
 function openDB(){return new Promise((resolve,reject)=>{try{let req=indexedDB.open('MyStyleBook',1);req.onupgradeneeded=()=>{req.result.createObjectStore('data')};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)}catch(e){reject(e)}})}
-async function init(){try{db=await openDB();persistence='indexeddb';let saved=await new Promise((resolve,reject)=>{let tx=db.transaction('data','readonly');let r=tx.objectStore('data').get('records');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});records=saved||[]}catch(e){try{localStorage.setItem('stylebook-test','1');localStorage.removeItem('stylebook-test');persistence='localStorage';records=JSON.parse(localStorage.getItem(key)||'[]')}catch(e2){persistence='none'}}render();updateStatus()}
+async function init(){try{db=await openDB();persistence='indexeddb';let saved=await new Promise((resolve,reject)=>{let tx=db.transaction('data','readonly');let r=tx.objectStore('data').get('records');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});records=saved||[]}catch(e){try{localStorage.setItem('stylebook-test','1');localStorage.removeItem('stylebook-test');persistence='localStorage';records=JSON.parse(localStorage.getItem(key)||'[]')}catch(e2){persistence='none'}}render();updateStatus();renderMe()}
 function updateStatus(){$('storage-status').textContent=persistence==='indexeddb'?'Saving to browser database (local to this browser).':persistence==='localStorage'?'Limited browser storage; large photos may not save.':'Storage is blocked in this file viewer. Use Export Backup or open a hosted version.'}
 
 function showTab(name){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));document.querySelectorAll('.board').forEach(x=>x.classList.toggle('active',x.id===name));$('form').style.display='none'}
@@ -126,23 +131,62 @@ function addPieceRow(name='',cat='Tops',box=null,photo=''){const row=document.cr
  const sel=document.createElement('select');sel.className='pcat';for(const c of CATS){const o=document.createElement('option');o.textContent=c;sel.append(o)}sel.value=CATS.includes(cat)?cat:'Other';
  const x=document.createElement('button');x.type='button';x.textContent='✕';x.title='Remove piece';x.onclick=()=>row.remove();
  if(box)row.dataset.box=JSON.stringify(box);row.append(inp,sel,x);$('newpieces').append(row);return row}
-$('entryform').onsubmit=async e=>{e.preventDefault();
+$('entryform').onsubmit=async e=>{e.preventDefault();const sub=e.submitter||$('entryform').querySelector('[type=submit]');if(sub.disabled)return;sub.disabled=true;
+ try{await saveEntry()}finally{sub.disabled=false;setDupStatus('')}};
+async function saveEntry(){
  let photo=pendingPhoto;if(!photo){const f=$('photo').files[0];if(f)photo=await readFile(f)}
  const old=records.slice();const id=Date.now();const title=$('title').value.trim();const date=$('date').value;
- const useCrop=current==='closet'&&pendingCrop;
- const item={id,type:current,title,category:$('category').value,date:current==='diary'?date:'',notes:$('notes').value,photo:useCrop?pendingCrop:photo};if(useCrop)item.original=photo;if(pendingDriveId)item.driveId=pendingDriveId;
- let added=[],linked=0;
+ const useCrop=current==='closet'&&pendingCrop;const category=$('category').value;
+ const item={id,type:current,title,category,date:current==='diary'?date:'',notes:$('notes').value,photo:useCrop?pendingCrop:photo};if(useCrop)item.original=photo;if(pendingDriveId)item.driveId=pendingDriveId;
+ // Already own this piece? Offer to update the existing item instead of adding a duplicate.
+ if(current==='closet'&&item.photo){const d=await findDuplicate(item.photo,category,[]);
+  if(d){const choice=await askSame(item.photo,d.item);if(choice==='cancel')return;
+   if(choice==='same'){const it=d.item,prev={photo:it.photo,original:it.original,emb:it.emb,embKey:it.embKey,cutChecked:it.cutChecked};
+    if(!it.original)it.original=it.photo;it.photo=item.photo;it.emb=d.emb;it.embKey=embKey(item.photo);it.cutChecked=true;
+    if(!await save()){Object.assign(it,prev);return}
+    $('form').style.display='none';render();alert(`Updated "${it.title}" with the new photo. No duplicate added.`);return}}}
+ let added=[],linked=0,matched=[];
  if(current==='diary'){const ids=[...tagged];
   for(const row of $('newpieces').querySelectorAll('.piece-row')){const name=row.querySelector('.pname').value.trim();if(!name)continue;
    const existing=records.find(r=>r.type==='closet'&&r.title.trim().toLowerCase()===name.toLowerCase());
    if(existing){if(!ids.includes(existing.id)){ids.push(existing.id);linked++}continue}
    let piecePhoto=rowPhotos.get(row)||photo;if(!rowPhotos.has(row)&&photo&&row.dataset.box){try{piecePhoto=await cropPhoto(photo,JSON.parse(row.dataset.box))}catch(err){}}
-   const pid=id+1+added.length;records.unshift({id:pid,type:'closet',title:name,category:row.querySelector('.pcat').value,date:'',notes:'From outfit "'+title+'"'+(date?' · '+date:''),photo:piecePhoto,fromOutfit:id});ids.push(pid);added.push(name)}
+   const cat=row.querySelector('.pcat').value;
+   if(rowPhotos.has(row)){const d=await findDuplicate(piecePhoto,cat,ids);
+    if(d){const choice=await askSame(piecePhoto,d.item,name);if(choice==='cancel')return;if(choice==='same'){ids.push(d.item.id);matched.push(d.item.title);continue}}}
+   const pid=id+1+added.length;records.unshift({id:pid,type:'closet',title:name,category:cat,date:'',notes:'From outfit "'+title+'"'+(date?' · '+date:''),photo:piecePhoto,fromOutfit:id,cutChecked:true});ids.push(pid);added.push(name)}
   item.pieces=ids}
  records.unshift(item);
  if(!await save()){records=old;return}
  $('form').style.display='none';render();
- alert(current==='diary'?'Outfit saved!'+(added.length?`\n${added.length} new piece(s) added to your Closet: ${added.join(', ')}.`:'')+(!added.length&&!item.pieces.length?'\nTip: list the pieces next time so they go into your Closet.':''):'Saved! Your item is now in My '+({closet:'Closet',inspiration:'Inspiration'}[current])+'.')};
+ alert(current==='diary'?'Outfit saved!'+(added.length?`\n${added.length} new piece(s) added to your Closet: ${added.join(', ')}.`:'')+(matched.length?`\nLinked to pieces you already own: ${matched.join(', ')}.`:'')+(!added.length&&!item.pieces.length?'\nTip: list the pieces next time so they go into your Closet.':''):'Saved! Your item is now in My '+({closet:'Closet',inspiration:'Inspiration'}[current])+'.')}
+
+// ---------- Duplicate check: compares a piece's photo with what's already in the closet ----------
+// Uses a free image-matching model (CLIP) that runs inside this browser. It only suggests; you always decide.
+const SAME_THRESHOLD=0.83;let clipPromise=null;
+function getClip(){if(!clipPromise)clipPromise=(async()=>{const tf=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1');const [proc,vis]=await Promise.all([tf.AutoProcessor.from_pretrained('Xenova/clip-vit-base-patch32'),tf.CLIPVisionModelWithProjection.from_pretrained('Xenova/clip-vit-base-patch32')]);return{tf,proc,vis}})().catch(e=>{clipPromise=null;throw e});return clipPromise}
+const embKey=src=>src?src.length+':'+src.slice(-40):'';
+async function embed(src){const {tf,proc,vis}=await getClip();const img=await tf.RawImage.read('data:image/jpeg;base64,'+await shrink(src,448));const {image_embeds}=await vis(await proc(img));const v=image_embeds.data;let n=0;for(const x of v)n+=x*x;n=Math.sqrt(n)||1;return Array.from(v,x=>Math.round(x/n*1e4)/1e4)}
+const cosine=(a,b)=>{let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s};
+function setDupStatus(msg){setAuto(msg)}
+async function itemEmbedding(x){if(x.emb&&x.embKey===embKey(x.photo))return x.emb;
+ // A piece still showing the whole outfit photo is cut out first, so it can be compared fairly.
+ if(!x.original&&!x.cutChecked){try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);if(p){x.original=x.photo;x.photo=p.photo}else x.cutChecked=true}catch(e){}}
+ x.emb=await embed(x.photo);x.embKey=embKey(x.photo);return x.emb}
+async function findDuplicate(photo,category,excludeIds){
+ const cands=closetItems().filter(x=>x.photo&&(x.category===category||category==='Other'||x.category==='Other')&&!excludeIds.includes(x.id));if(!cands.length)return null;
+ try{setDupStatus(clipPromise?'Checking if you already own this piece…':'Checking if you already own this piece… (the first time, the matcher downloads once, about 30 seconds)');
+  const e=await embed(photo);let best=null,changed=false;
+  for(const [i,x] of cands.entries()){if(!(x.emb&&x.embKey===embKey(x.photo))){changed=true;setDupStatus(`Checking your ${category.toLowerCase()} (${i+1} of ${cands.length})…`)}
+   const s=cosine(e,await itemEmbedding(x));if(!best||s>best.score)best={item:x,score:s}}
+  if(changed){await save();render()}
+  return best&&best.score>=SAME_THRESHOLD?{...best,emb:e}:null}
+ catch(err){console.warn('Duplicate check skipped:',err);return null}}
+function askSame(newPhoto,item,newName){return new Promise(resolve=>{const dlg=$('dupdialog');
+ $('dup-new').src=newPhoto;$('dup-old').src=item.photo;$('dup-oldname').textContent=item.title;$('dup-newname').textContent=newName||'New photo';
+ $('dup-title').textContent=`Is this your ${item.title}?`;
+ const done=v=>{dlg.close();resolve(v)};$('dup-same').onclick=()=>done('same');$('dup-new-btn').onclick=()=>done('new');dlg.oncancel=ev=>{ev.preventDefault();done('cancel')};
+ $('dup-same').textContent=newName?'Same piece, link it':'Same piece, use the new photo';dlg.showModal()})}
 
 async function save(){try{if(persistence==='indexeddb'){await new Promise((resolve,reject)=>{let tx=db.transaction('data','readwrite');tx.objectStore('data').put(records,'records');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}else if(persistence==='localStorage'){localStorage.setItem(key,JSON.stringify(records))}else{throw Error('Storage blocked')}return true}catch(e){alert('This downloaded-file browser cannot save the photo reliably. Your entry was NOT saved. Please use Export Backup or a hosted version.');return false}}
 
@@ -264,13 +308,33 @@ function localMix(closet,insp){const target=new Set(insp.flatMap(i=>colourWords(
   const matched=[...new Set(items.flatMap(x=>colourWords(x.title+' '+x.notes)).filter(c=>target.has(c)))];
   looks.push({name:names[looks.length*2+Math.floor(Math.random()*2)]+' look',items,insp:'',why:matched.length?'Picks up your inspiration colours: '+matched.join(', ')+'.':target.size?'A fresh pairing you haven\'t worn recently.':'A fresh pairing you haven\'t worn recently. Tip: add colours to your Ideas notes for better matches.'})}
  return looks}
+// ---------- Try it on (with Gemini) ----------
+function mePhoto(){return records.find(r=>r.type==='me')?.photo||''}
+function renderMe(){const box=$('mepreview');box.replaceChildren();const src=mePhoto();if(src){const i=document.createElement('img');i.src=src;i.alt='My try-on photo';i.style.cssText='max-height:180px;border-radius:16px;display:block;margin:6px 0 4px';box.append(i)}}
+$('mephoto').onchange=async()=>{const f=$('mephoto').files[0];if(!f)return;const photo='data:image/jpeg;base64,'+await shrink(await readFile(f),1400);const old=records.slice();records=records.filter(r=>r.type!=='me');records.push({id:Date.now(),type:'me',title:'Me',photo});if(!await save()){records=old;return}renderMe();$('mephoto').value='';alert('Saved. "Try it on" will use this photo.')};
+function tryOnPrompt(l){return `Virtual try-on. This image has two parts: on the LEFT is a photo of me; on the RIGHT are the exact clothing pieces for the outfit ("${l.name}"): ${l.items.map(i=>i.title+' ('+i.category.toLowerCase()+')').join(', ')}.
+Create a realistic full-length photo of ME (the woman on the left) wearing exactly these pieces together. Keep my face, hair, skin tone, body shape and proportions exactly as they are. Copy each piece's colour, fabric, fit and details faithfully; do not add other clothing items. Natural daylight, simple neutral background, standing pose.`}
+async function tryOn(l){const me=mePhoto();
+ if(!me){alert('First add a photo of yourself under "My try-on photo" (bottom of the page). A full-length photo works best.');$('mepanel').scrollIntoView({behavior:'smooth'});return}
+ const prompt=tryOnPrompt(l);let copied=false;try{await navigator.clipboard.writeText(prompt);copied=true}catch(e){}
+ window.open('https://gemini.google.com/app','_blank','noopener');
+ try{const W=1600,H=1100,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);
+  const fit=(img,x,y,w,h)=>{const s=Math.min(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s;g.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh)};
+  g.fillStyle='#43233A';g.font='600 30px Manrope, sans-serif';g.fillText('Me',40,56);fit(await loadImg(me),40,80,700,980);
+  g.fillText('Outfit: '+l.name,820,56);const n=l.items.length,cols=n>4?3:2,rows=Math.ceil(n/cols),cw=(W-820-40)/cols,ch=980/rows;
+  for(const [i,it] of l.items.entries()){const x=820+(i%cols)*cw,y=80+Math.floor(i/cols)*ch;if(it.photo)fit(await loadImg(it.photo),x+10,y+10,cw-20,ch-56);g.fillStyle='#43233A';g.font='500 22px Manrope, sans-serif';g.fillText(it.title.slice(0,32),x+10,y+ch-18)}
+  const a=document.createElement('a');a.href=c.toDataURL('image/jpeg',.9);a.download='try-on-'+l.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.jpg';document.body.append(a);a.click();a.remove();
+  $('mm-status').textContent=`Try-on image saved as ${a.download}. In Gemini (it opened in a new tab; if not, go to gemini.google.com): 1) attach that image, 2) ${copied?'paste the prompt with Ctrl+V or Cmd+V (already copied)':'type "Dress the woman on the left in the outfit on the right"'}, 3) send.`;
+  $('mm-status').scrollIntoView({behavior:'smooth',block:'center'})}
+ catch(e){alert('Could not prepare the try-on image: '+e.message)}}
 function showLooks(looks,source){const out=$('mm-results');out.replaceChildren();
  for(const l of looks){const card=document.createElement('div');card.className='look';card.append(thumbGrid(l.items));const info=document.createElement('div');info.className='info';
   const badge=document.createElement('div');badge.className='badge';badge.textContent=source+(l.insp?' · inspired by '+l.insp:'');const h=document.createElement('h3');h.textContent=l.name;
   const tags=document.createElement('div');for(const it of l.items){const s=document.createElement('span');s.className='tag';s.textContent=it.title;tags.append(s)}
   const p=document.createElement('p');p.textContent=l.why;const b=document.createElement('button');b.className='primary';b.textContent='I wore this today';
   b.onclick=async()=>{const old=records.slice();records.unshift({id:Date.now(),type:'diary',title:l.name,category:'',date:today(),notes:'From Mix & Match',photo:'',pieces:l.items.map(i=>i.id)});if(!await save()){records=old;return}render();b.disabled=true;b.textContent='Added to your Diary'};
-  info.append(badge,h,tags,p,b);card.append(info);out.append(card)}}
+  const tb=document.createElement('button');tb.textContent='Try it on';tb.onclick=()=>tryOn(l);const row=document.createElement('div');row.className='controls';row.style.margin='0';row.append(b,tb);
+  info.append(badge,h,tags,p,row);card.append(info);out.append(card)}}
 
 // Google Identity Services OAuth token flow; no client secret in this public website.
 const DRIVE_CLIENT_ID='951717146589-222lmq4pqf2m0rcjv9g13g588ftj7pgj.apps.googleusercontent.com';
