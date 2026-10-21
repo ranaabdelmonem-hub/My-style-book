@@ -61,6 +61,21 @@ dialog#dupdialog{border:0;border-radius:24px;padding:22px;max-width:440px;width:
 #dupdialog .controls button{flex:1 1 160px}#dupdialog button:not(.primary){background:var(--soft)}
 .editform label{display:block;font-size:12px;margin-top:4px}.editform input,.editform select,.editform textarea{margin:4px 0 8px;padding:9px 11px;font-size:14px}.editform .primary{min-height:38px;padding:8px 16px}
 #diarygrid{columns:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}#diarygrid .card{margin:0}#diarygrid .empty{grid-column:1/-1}
+.piece-row{flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}.piece-row .pdetails{flex:1 1 100%;display:flex;gap:6px}.piece-row .pdetails input{flex:1;margin:2px 0;padding:8px 11px;font-size:13px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pieces-list{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.piece-line{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:6px;min-height:0;border-radius:14px;background:var(--soft);color:var(--ink);font-weight:400}
+.piece-line img,.piece-line .nophoto{width:44px;height:44px;flex:none;border-radius:10px;object-fit:cover;background:var(--line)}
+.piece-line span{display:flex;flex-direction:column;min-width:0}.piece-line b{font-size:13px}.piece-line small{font-size:11.5px;color:var(--muted)}
+.card.flash{box-shadow:0 0 0 3px var(--accent);transition:box-shadow .3s}
+@media (prefers-reduced-motion:reduce){.card.flash{transition:none}}
+.outfitedit .pieces-head{display:block;margin:6px 0 4px;font-size:13px}
+.pieces-edit{display:flex;flex-direction:column;gap:8px}
+.pe-row{display:flex;gap:8px;align-items:flex-start;background:var(--soft);border-radius:14px;padding:8px}
+.pe-row img,.pe-row .nophoto{width:52px;height:52px;flex:none;border-radius:10px;object-fit:cover;background:var(--line)}
+.pe-fields{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}.pe-fields input,.pe-fields select{margin:0;padding:8px 10px;font-size:13px;background:#fff}.pe-fields .pe-name{grid-column:1/-1}
+.pe-row .pe-rm{background:transparent;min-height:32px;padding:4px 8px;color:var(--muted)}
+#diarygrid .card:has(.outfitedit){grid-column:1/-1}
 .settings{margin-top:48px}.settings h2{font-size:26px}
 </style>
 <header><h1>My Style Book</h1><small>Your wardrobe, outfits and inspiration</small></header>
@@ -74,7 +89,7 @@ dialog#dupdialog{border:0;border-radius:24px;padding:22px;max-width:440px;width:
 <div id="mm-results"></div><div class="grid" id="closetgrid"></div></section>
 <section id="diary" class="board"><h2>Outfit Diary</h2><p class="hint">Every piece you list in an outfit is added to your Closet automatically.</p><div class="controls"><button class="primary" onclick="add('diary')">Log outfit</button><select id="diarysort" aria-label="Sort outfits" onchange="render()" style="width:auto;margin:0;min-height:44px"><option value="new">Newest first</option><option value="old">Oldest first</option></select></div><div class="grid" id="diarygrid"></div></section>
 <section id="inspiration" class="board"><h2>My Inspiration</h2><div class="controls"><button class="primary" onclick="add('inspiration')">Add inspiration</button></div><div class="grid" id="inspirationgrid"></div></section>
-<div class="panel" id="form"><h2 id="formtitle">Add photo</h2><form id="entryform"><label>Original photo (kept unchanged)</label><input type="file" id="photo" accept="image/*"><div id="preview"></div><p class="autostatus" id="autostatus" hidden></p><div id="cropbox" hidden><label>Which piece is this?</label><div class="cropchoices" id="cropchoices"></div></div><label>Title / description</label><input id="title" required placeholder="e.g. Olive wide-leg trousers"><div id="categorybox"><label>Category</label><select id="category"><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div id="datebox" hidden><label>Date worn</label><input id="date" type="date"></div>
+<div class="panel" id="form"><h2 id="formtitle">Add photo</h2><form id="entryform"><label>Original photo (kept unchanged)</label><input type="file" id="photo" accept="image/*"><div id="preview"></div><p class="autostatus" id="autostatus" hidden></p><div id="cropbox" hidden><label>Which piece is this?</label><div class="cropchoices" id="cropchoices"></div></div><label>Title / description</label><input id="title" required placeholder="e.g. Olive wide-leg trousers"><div id="categorybox"><label>Category</label><select id="category"><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div id="detailbox"><div class="twocol"><div><label for="colour">Colour</label><input id="colour" placeholder="e.g. pink"></div><div><label for="fabric">Fabric</label><input id="fabric" placeholder="e.g. cotton"></div></div></div><div id="datebox" hidden><label>Date worn</label><input id="date" type="date"></div>
 <div id="piecesbox" hidden><label>Pieces in this outfit</label><p class="hint" style="margin:2px 0 6px">When you choose the photo, each piece is found and cropped automatically. Rename them if you like, ✕ any you don't want. New pieces go into your Closet when you save.</p><div id="existingwrap"><p class="hint" style="margin:6px 0 0">Already in your closet? Tap to tag:</p><div class="chips" id="existingpieces"></div></div><div id="newpieces"></div><div class="controls" style="margin:8px 0 14px"><button type="button" onclick="addPieceRow()">Add a piece</button></div></div>
 <label>Colours, notes or clothing IDs</label><textarea id="notes" rows="2"></textarea><div class="controls"><button type="submit" class="primary">Save</button><button type="button" onclick="document.getElementById('form').style.display='none'">Cancel</button></div></form></div>
 <dialog id="dupdialog" aria-labelledby="dup-title"><h3 id="dup-title" style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0 0 6px"></h3><p class="hint" style="margin:0 0 14px">This looks like a piece already in your Closet. Same piece or a different one?</p><div class="dup-pair"><figure><img id="dup-old" alt="In your closet"><figcaption>In your closet<br><b id="dup-oldname"></b></figcaption></figure><figure><img id="dup-new" alt="New photo"><figcaption>Adding now<br><b id="dup-newname"></b></figcaption></figure></div><div class="controls" style="margin-bottom:0"><button class="primary" id="dup-same"></button><button id="dup-new-btn">It's a different piece</button></div></dialog>
@@ -94,7 +109,7 @@ function updateStatus(){$('storage-status').textContent=persistence==='indexeddb
 
 function showTab(name){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));document.querySelectorAll('.board').forEach(x=>x.classList.toggle('active',x.id===name));$('form').style.display='none'}
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
-function add(type){current=type;$('form').style.display='block';$('formtitle').textContent={closet:'Add clothing',diary:'Log worn outfit',inspiration:'Save inspiration'}[type];$('categorybox').hidden=type!=='closet';$('datebox').hidden=type!=='diary';$('piecesbox').hidden=type!=='diary';$('entryform').reset();
+function add(type){current=type;$('form').style.display='block';$('formtitle').textContent={closet:'Add clothing',diary:'Log worn outfit',inspiration:'Save inspiration'}[type];$('categorybox').hidden=type!=='closet';$('detailbox').hidden=type!=='closet';$('colour').dataset.auto='0';$('datebox').hidden=type!=='diary';$('piecesbox').hidden=type!=='diary';$('entryform').reset();
  pendingPhoto='';pendingDriveId='';pendingCrop='';detectToken++;tagged=new Set();$('newpieces').replaceChildren();$('preview').replaceChildren();$('cropbox').hidden=true;$('cropchoices').replaceChildren();$('autostatus').hidden=true;
  $('title').placeholder=type==='diary'?'e.g. Office Tuesday':type==='inspiration'?'e.g. Chocolate brown & blue':'e.g. Olive wide-leg trousers';
  $('title').dataset.auto='0';
@@ -111,35 +126,36 @@ async function autoDetect(){if(current==='inspiration'||!pendingPhoto)return;con
  try{const pieces=await findPieces(src);if(token!==detectToken)return;
   if(current==='diary'){if(!pieces.length){setAuto('No separate pieces found in this photo — add them yourself with Add a piece.');return}
    [...$('newpieces').children].forEach(r=>{if(!r.querySelector('.pname').value.trim())r.remove()});
-   for(const p of pieces)addPieceRow(p.name,p.category,null,p.photo);
+   for(const p of pieces)addPieceRow(p.name,p.category,null,p.photo,p.colour);
    setAuto(`Found ${pieces.length} piece(s) and cropped them. Already own one? Tap ✕ on it and tag it above instead.`)}
   else{showCropChoices(pieces)}
  }catch(e){if(token===detectToken)setAuto('Auto-detection is unavailable right now ('+e.message+'). You can still add pieces yourself.')}}
 function showCropChoices(pieces){const box=$('cropchoices');box.replaceChildren();if(!pieces.length){setAuto('');return}
- const choose=(btn,p)=>{box.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));pendingCrop=p?p.photo:'';if(p){$('category').value=p.category;if(!$('title').value.trim()||$('title').dataset.auto==='1'){$('title').value=p.name;$('title').dataset.auto='1'}}showPreview()};
+ const choose=(btn,p)=>{box.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));pendingCrop=p?p.photo:'';if(p){$('category').value=p.category;if(!$('colour').value.trim()||$('colour').dataset.auto==='1'){$('colour').value=p.colour||'';$('colour').dataset.auto='1'}if(!$('title').value.trim()||$('title').dataset.auto==='1'){$('title').value=p.name;$('title').dataset.auto='1'}}showPreview()};
  const mk=(label,src,p)=>{const b=document.createElement('button');b.type='button';const i=document.createElement('img');i.src=src;i.alt=label;b.append(i,document.createTextNode(label));b.onclick=()=>choose(b,p);box.append(b);return b};
  const whole=mk('Whole photo',pendingPhoto,null);const btns=pieces.map(p=>mk(p.name,p.photo,p));
  $('cropbox').hidden=false;setAuto('Tap the piece you are adding — it will be saved cropped on its own.');
  if(pieces.length===1)choose(btns[0],pieces[0]);else choose(whole,null)}
-$('title').oninput=()=>{$('title').dataset.auto='0'};
+$('title').oninput=()=>{$('title').dataset.auto='0'};$('colour').oninput=()=>{$('colour').dataset.auto='0'};
 
 // ---------- Pieces in an outfit ----------
 function closetItems(){return records.filter(r=>r.type==='closet')}
 function renderExistingChips(){const box=$('existingpieces');box.replaceChildren();const items=closetItems();$('existingwrap').hidden=!items.length;
  for(const it of items){const c=document.createElement('button');c.type='button';c.className='chip'+(tagged.has(it.id)?' on':'');c.textContent=it.title;c.onclick=()=>{tagged.has(it.id)?tagged.delete(it.id):tagged.add(it.id);c.classList.toggle('on',tagged.has(it.id))};box.append(c)}}
-function addPieceRow(name='',cat='Tops',box=null,photo=''){const row=document.createElement('div');row.className='piece-row';
+function addPieceRow(name='',cat='Tops',box=null,photo='',colour=''){const row=document.createElement('div');row.className='piece-row';
  if(photo){rowPhotos.set(row,photo);const t=document.createElement('img');t.src=photo;t.alt=name;row.append(t)}
  const inp=document.createElement('input');inp.className='pname';inp.placeholder='New piece, e.g. White linen shirt';inp.value=name;
  const sel=document.createElement('select');sel.className='pcat';for(const c of CATS){const o=document.createElement('option');o.textContent=c;sel.append(o)}sel.value=CATS.includes(cat)?cat:'Other';
  const x=document.createElement('button');x.type='button';x.textContent='✕';x.title='Remove piece';x.onclick=()=>row.remove();
- if(box)row.dataset.box=JSON.stringify(box);row.append(inp,sel,x);$('newpieces').append(row);return row}
+ const det=document.createElement('div');det.className='pdetails';const pc=document.createElement('input');pc.className='pcol';pc.placeholder='Colour';pc.value=colour;pc.setAttribute('aria-label','Colour');const pf=document.createElement('input');pf.className='pfab';pf.placeholder='Fabric, e.g. cotton';pf.setAttribute('aria-label','Fabric');det.append(pc,pf);
+ if(box)row.dataset.box=JSON.stringify(box);row.append(inp,sel,x,det);$('newpieces').append(row);return row}
 $('entryform').onsubmit=async e=>{e.preventDefault();const sub=e.submitter||$('entryform').querySelector('[type=submit]');if(sub.disabled)return;sub.disabled=true;
  try{await saveEntry()}finally{sub.disabled=false;setDupStatus('')}};
 async function saveEntry(){
  let photo=pendingPhoto;if(!photo){const f=$('photo').files[0];if(f)photo=await readFile(f)}
  const old=records.slice();const id=Date.now();const title=$('title').value.trim();const date=$('date').value;
  const useCrop=current==='closet'&&pendingCrop;const category=$('category').value;
- const item={id,type:current,title,category,date:current==='diary'?date:'',notes:$('notes').value,photo:useCrop?pendingCrop:photo};if(useCrop){item.original=photo;item.cropV=CROP_V}if(pendingDriveId)item.driveId=pendingDriveId;
+ const item={id,type:current,title,category,date:current==='diary'?date:'',notes:$('notes').value,photo:useCrop?pendingCrop:photo};if(current==='closet'){item.colour=$('colour').value.trim();item.fabric=$('fabric').value.trim()};if(useCrop){item.original=photo;item.cropV=CROP_V}if(pendingDriveId)item.driveId=pendingDriveId;
  // Already own this piece? Offer to update the existing item instead of adding a duplicate.
  if(current==='closet'&&item.photo){const d=await findDuplicate(item.photo,category,[]);
   if(d){const choice=await askSame(item.photo,d.item);if(choice==='cancel')return;
@@ -149,14 +165,15 @@ async function saveEntry(){
     $('form').style.display='none';render();alert(`Updated "${it.title}" with the new photo. No duplicate added.`);return}}}
  let added=[],linked=0,matched=[];
  if(current==='diary'){const ids=[...tagged];
-  for(const row of $('newpieces').querySelectorAll('.piece-row')){const name=row.querySelector('.pname').value.trim();if(!name)continue;
+  for(const row of $('newpieces').querySelectorAll('.piece-row')){const name=row.querySelector('.pname').value.trim();const pcol=row.querySelector('.pcol')?.value.trim()||'',pfab=row.querySelector('.pfab')?.value.trim()||'';if(!name)continue;
    const existing=records.find(r=>r.type==='closet'&&r.title.trim().toLowerCase()===name.toLowerCase());
-   if(existing){if(!ids.includes(existing.id)){ids.push(existing.id);linked++}continue}
-   let piecePhoto=rowPhotos.get(row)||photo;if(!rowPhotos.has(row)&&photo&&row.dataset.box){try{piecePhoto=await cropPhoto(photo,JSON.parse(row.dataset.box))}catch(err){}}
+   if(existing){if(!existing.colour&&pcol)existing.colour=pcol;if(!existing.fabric&&pfab)existing.fabric=pfab;if(!ids.includes(existing.id)){ids.push(existing.id);linked++}continue}
    const cat=row.querySelector('.pcat').value;
-   if(rowPhotos.has(row)){const d=await findDuplicate(piecePhoto,cat,ids);
-    if(d){const choice=await askSame(piecePhoto,d.item,name);if(choice==='cancel')return;if(choice==='same'){ids.push(d.item.id);matched.push(d.item.title);continue}}}
-   const pid=id+1+added.length;records.unshift({id:pid,type:'closet',title:name,category:cat,date:'',notes:'From outfit "'+title+'"'+(date?' · '+date:''),photo:piecePhoto,fromOutfit:id,cutChecked:true,cropV:rowPhotos.has(row)?CROP_V:undefined});ids.push(pid);added.push(name)}
+   let piecePhoto=rowPhotos.get(row)||'';if(!piecePhoto&&photo){setAuto(`Cropping the ${name} from your photo…`);piecePhoto=await cropForCategory(photo,cat)}
+   const cropped=!!piecePhoto;if(!piecePhoto)piecePhoto=photo;
+   if(cropped){const d=await findDuplicate(piecePhoto,cat,ids);
+    if(d){const choice=await askSame(piecePhoto,d.item,name);if(choice==='cancel'){records=old;return}if(choice==='same'){if(!d.item.colour&&pcol)d.item.colour=pcol;if(!d.item.fabric&&pfab)d.item.fabric=pfab;ids.push(d.item.id);matched.push(d.item.title);continue}}}
+   const pid=id+1+added.length;records.unshift({id:pid,type:'closet',title:name,category:cat,colour:pcol,fabric:pfab,date:'',notes:'From outfit "'+title+'"'+(date?' · '+date:''),photo:piecePhoto,fromOutfit:id,cutChecked:true,cropV:cropped?CROP_V:undefined});ids.push(pid);added.push(name)}
   item.pieces=ids}
  records.unshift(item);
  if(!await save()){records=old;return}
@@ -194,26 +211,92 @@ async function save(){try{if(persistence==='indexeddb'){await new Promise((resol
 
 function thumbGrid(items){const g=document.createElement('div');g.className='thumbs';for(const it of items.slice(0,6)){if(it&&it.photo){const i=document.createElement('img');i.src=it.photo;i.alt=it.title;g.append(i)}else{const d=document.createElement('div');d.textContent=it?it.title:'?';g.append(d)}}return g}
 // Edit a card's name, category, date and notes in place.
-function editCard(x,info){const f=document.createElement('form');f.className='editform';
+function editCard(x,info){if(x.type==='diary')return editOutfit(x,info);const f=document.createElement('form');f.className='editform';
  const field=(label,el)=>{const l=document.createElement('label');l.textContent=label;l.append(el);f.append(l);return el};
  const name=field('Name',Object.assign(document.createElement('input'),{value:x.title,required:true}));
  let cat=null,date=null;
- if(x.type==='closet'){cat=document.createElement('select');for(const c of CATS){const o=document.createElement('option');o.textContent=c;cat.append(o)}cat.value=CATS.includes(x.category)?x.category:'Other';field('Category',cat)}
+ let col=null,fab=null;if(x.type==='closet'){cat=document.createElement('select');for(const c of CATS){const o=document.createElement('option');o.textContent=c;cat.append(o)}cat.value=CATS.includes(x.category)?x.category:'Other';field('Category',cat);col=field('Colour',Object.assign(document.createElement('input'),{value:x.colour||'',placeholder:'e.g. pink'}));fab=field('Fabric',Object.assign(document.createElement('input'),{value:x.fabric||'',placeholder:'e.g. cotton'}))}
  if(x.type==='diary')date=field('Date worn',Object.assign(document.createElement('input'),{type:'date',value:x.date||''}));
  const notes=field('Notes',Object.assign(document.createElement('textarea'),{rows:2,value:x.notes||''}));
  const row=document.createElement('div');row.className='cardacts';const sv=document.createElement('button');sv.type='submit';sv.className='primary';sv.textContent='Save';const cn=document.createElement('button');cn.type='button';cn.className='delete';cn.textContent='Cancel';cn.onclick=()=>render();row.append(sv,cn);f.append(row);
- f.onsubmit=async e=>{e.preventDefault();const t=name.value.trim();if(!t)return;const prev={title:x.title,category:x.category,date:x.date,notes:x.notes};
+ f.onsubmit=async e=>{e.preventDefault();const t=name.value.trim();if(!t)return;const prev={title:x.title,category:x.category,date:x.date,notes:x.notes,colour:x.colour,fabric:x.fabric};if(col){x.colour=col.value.trim();x.fabric=fab.value.trim()}
   x.title=t;x.notes=notes.value.trim();if(cat){if(cat.value!==x.category){x.category=cat.value;delete x.cutChecked;delete x.recropSkipped}}if(date)x.date=date.value;
   if(!await save())Object.assign(x,prev);render()};
  info.replaceChildren(f);name.focus();name.select()}
+// The pieces of an outfit: small photo, name and details; tap to open it in the Closet.
+function pieceList(pieces){const ul=document.createElement('div');ul.className='pieces-list';
+ for(const p of pieces){const b=document.createElement('button');b.type='button';b.className='piece-line';b.setAttribute('aria-label','Open '+p.title+' in your Closet');
+  if(p.photo){const i=document.createElement('img');i.src=p.photo;i.alt='';b.append(i)}else{const d=document.createElement('span');d.className='nophoto';b.append(d)}
+  const t=document.createElement('span');const n=document.createElement('b');n.textContent=p.title;const s=document.createElement('small');s.textContent=[p.category,p.colour,p.fabric].filter(Boolean).join(' · ');t.append(n,s);b.append(t);
+  b.onclick=()=>openPiece(p.id);ul.append(b)}
+ return ul}
+function openPiece(id){showTab('closet');$('filter').value='All categories';render();const c=document.querySelector(`#closetgrid .card[data-id="${id}"]`);if(!c)return;c.scrollIntoView({behavior:'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),1800)}
+// Edit a logged outfit: its name, date, notes, and the details of each piece in it.
+function editOutfit(x,info){const f=document.createElement('form');f.className='editform outfitedit';
+ const field=(label,el,parent=f)=>{const l=document.createElement('label');l.textContent=label;l.append(el);parent.append(l);return el};
+ const name=field('Outfit name',Object.assign(document.createElement('input'),{value:x.title,required:true}));
+ const date=field('Date worn',Object.assign(document.createElement('input'),{type:'date',value:x.date||''}));
+ const notes=field('Notes',Object.assign(document.createElement('textarea'),{rows:2,value:x.notes||''}));
+ const head=document.createElement('b');head.className='pieces-head';head.textContent='Pieces in this outfit';f.append(head);
+ const list=document.createElement('div');list.className='pieces-edit';f.append(list);
+ const byId=new Map(records.map(r=>[r.id,r]));
+ const pieceRow=(piece,draft)=>{const r=document.createElement('div');r.className='pe-row';if(piece)r.dataset.id=piece.id;
+  const src=piece?piece.photo:draft?.photo||'';if(src){const i=document.createElement('img');i.src=src;i.alt='';r.append(i);if(!piece)r._photo=src}else{const d=document.createElement('span');d.className='nophoto';r.append(d)}
+  const g=document.createElement('div');g.className='pe-fields';
+  const n=Object.assign(document.createElement('input'),{value:piece?.title||draft?.name||'',placeholder:'Piece name',className:'pe-name'});n.setAttribute('aria-label','Piece name');
+  const c=document.createElement('select');c.className='pe-cat';c.setAttribute('aria-label','Category');for(const k of CATS){const o=document.createElement('option');o.textContent=k;c.append(o)}c.value=CATS.includes(piece?.category||draft?.category)?(piece?.category||draft?.category):'Other';
+  const col=Object.assign(document.createElement('input'),{value:piece?.colour||draft?.colour||'',placeholder:'Colour',className:'pe-col'});col.setAttribute('aria-label','Colour');
+  const fab=Object.assign(document.createElement('input'),{value:piece?.fabric||'',placeholder:'Fabric',className:'pe-fab'});fab.setAttribute('aria-label','Fabric');
+  g.append(n,c,col,fab);
+  const rm=document.createElement('button');rm.type='button';rm.className='pe-rm';rm.textContent='✕';rm.setAttribute('aria-label','Remove from this outfit');rm.onclick=()=>{r.remove();renderTagChips()};
+  r.append(g,rm);list.append(r);return r};
+ for(const id of x.pieces||[]){const pc=byId.get(id);if(pc)pieceRow(pc)}
+ // tag pieces already in the closet
+ const tagWrap=document.createElement('div');const tagHint=document.createElement('p');tagHint.className='hint';tagHint.style.margin='8px 0 0';tagHint.textContent='Add a piece from your Closet:';const chips=document.createElement('div');chips.className='chips';tagWrap.append(tagHint,chips);f.append(tagWrap);
+ const renderTagChips=()=>{chips.replaceChildren();const inList=new Set([...list.querySelectorAll('.pe-row[data-id]')].map(r=>r.dataset.id));const avail=closetItems().filter(c=>!inList.has(String(c.id)));tagWrap.hidden=!avail.length;
+  for(const c of avail){const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c.title;b.onclick=()=>{pieceRow(c);renderTagChips()};chips.append(b)}};
+ renderTagChips();
+ const tools=document.createElement('div');tools.className='controls';tools.style.margin='8px 0 12px';
+ const addNew=document.createElement('button');addNew.type='button';addNew.textContent='Add a new piece';addNew.onclick=()=>pieceRow(null,{category:'Tops'}).querySelector('.pe-name').focus();tools.append(addNew);
+ if(x.photo){const det=document.createElement('button');det.type='button';det.textContent='Find pieces in the photo';const st=document.createElement('p');st.className='autostatus';st.hidden=true;
+  det.onclick=async()=>{det.disabled=true;st.hidden=false;st.textContent=segReady?'Finding the pieces…':'Finding the pieces… (the first time, the detector downloads once, about a minute)';
+   try{const found=await piecesOf(x.photo);const have=[...list.querySelectorAll('.pe-cat')].map(s=>s.value);let added=0;
+    for(const p of found){if(have.includes(p.category))continue;pieceRow(null,p);added++}
+    st.textContent=added?`Added ${added} piece(s) from the photo. Check the names and details, then Save.`:'No new pieces found. The ones in the photo are already listed.'}
+   catch(e){st.textContent='Could not find pieces: '+e.message}finally{det.disabled=false}};
+  tools.append(det);f.append(tools,st)}else f.append(tools);
+ const row=document.createElement('div');row.className='cardacts';const sv=document.createElement('button');sv.type='submit';sv.className='primary';sv.textContent='Save';const cn=document.createElement('button');cn.type='button';cn.className='delete';cn.textContent='Cancel';cn.onclick=()=>render();row.append(sv,cn);f.append(row);
+ const saveSt=document.createElement('p');saveSt.className='autostatus';saveSt.hidden=true;row.before(saveSt);
+ f.onsubmit=async e=>{e.preventDefault();const t=name.value.trim();if(!t||sv.disabled)return;sv.disabled=true;
+  try{const v=(r,k)=>r.querySelector(k).value.trim();const plan=[];const linked=new Set();
+   for(const r of list.querySelectorAll('.pe-row')){const pn=v(r,'.pe-name');if(!pn)continue;const cat=r.querySelector('.pe-cat').value,col=v(r,'.pe-col'),fab=v(r,'.pe-fab');
+    if(r.dataset.id){const pc=records.find(q=>String(q.id)===r.dataset.id);if(pc){plan.push({kind:'edit',pc,pn,cat,col,fab});linked.add(pc.id)}continue}
+    const same=records.find(q=>q.type==='closet'&&q.title.trim().toLowerCase()===pn.toLowerCase());
+    if(same){plan.push({kind:'link',pc:same,col,fab});linked.add(same.id);continue}
+    // new piece: zoomed-in crop from the outfit photo, then make sure it isn't already in the closet
+    let photo=r._photo||'';if(!photo&&x.photo){saveSt.hidden=false;saveSt.textContent=(segReady?'':'Loading the detector (first time only)… ')+`Cropping the ${pn} from the photo…`;photo=await cropForCategory(x.photo,cat)}
+    if(photo){saveSt.hidden=false;saveSt.textContent=`Checking your closet for the ${pn}…`;const d=await findDuplicate(photo,cat,[...linked]);
+     if(d){const choice=await askSame(photo,d.item,pn);if(choice==='cancel'){saveSt.textContent='Not saved. Nothing changed.';return}
+      if(choice==='same'){plan.push({kind:'link',pc:d.item,col,fab});linked.add(d.item.id);continue}}}
+    plan.push({kind:'new',pn,cat,col,fab,photo})}
+   const old=records.slice(),oldX={...x},undo=[];const ids=[];let n=0;
+   for(const s of plan){if(s.kind==='edit'){undo.push([s.pc,{title:s.pc.title,category:s.pc.category,colour:s.pc.colour,fabric:s.pc.fabric,cutChecked:s.pc.cutChecked,recropSkipped:s.pc.recropSkipped}]);
+      if(s.cat!==s.pc.category){delete s.pc.cutChecked;delete s.pc.recropSkipped}Object.assign(s.pc,{title:s.pn,category:s.cat,colour:s.col,fabric:s.fab})}
+    else if(s.kind==='link'){undo.push([s.pc,{colour:s.pc.colour,fabric:s.pc.fabric}]);if(!s.pc.colour&&s.col)s.pc.colour=s.col;if(!s.pc.fabric&&s.fab)s.pc.fabric=s.fab}
+    else{const pid=Date.now()+(++n);records.unshift({id:pid,type:'closet',title:s.pn,category:s.cat,colour:s.col,fabric:s.fab,notes:'From outfit "'+t+'"'+(date.value?' · '+date.value:''),photo:s.photo||'',fromOutfit:x.id,cutChecked:true,cropV:s.photo?CROP_V:undefined});s.pc={id:pid}}
+    if(!ids.includes(s.pc.id))ids.push(s.pc.id)}
+   x.title=t;x.date=date.value;x.notes=notes.value.trim();x.pieces=ids;
+   if(!await save()){records=old;Object.assign(x,oldX);for(const [pc,pv] of undo)Object.assign(pc,pv)}render()}
+  finally{sv.disabled=false}};
+ info.replaceChildren(f);name.focus()}
 function renderCatChips(){const box=$('catchips'),cur=$('filter').value;box.replaceChildren();
  for(const c of ['All categories',...CATS]){const b=document.createElement('button');b.type='button';b.className='chip'+(c===cur?' on':'');b.textContent=c==='All categories'?'All':c;b.setAttribute('aria-pressed',c===cur);b.onclick=()=>{$('filter').value=c;render()};box.append(b)}}
 function render(){renderCatChips();renderCutBanner();const byId=new Map(records.map(r=>[r.id,r]));
  for(let type of ['closet','diary','inspiration']){let box=$(type+'grid');box.replaceChildren();let items=records.filter(x=>x.type===type&&(type!=='closet'||$('filter').value==='All categories'||x.category===$('filter').value));if(type==='diary'){const dir=$('diarysort').value==='old'?1:-1;items.sort((a,b)=>{if(!a.date!==!b.date)return a.date?-1:1;return a.date===b.date?(a.id-b.id)*dir:(a.date<b.date?-dir:dir)})}if(!items.length){let d=document.createElement('p');d.className='empty';d.textContent={closet:'Your closet is empty. Add a piece, or log an outfit and its pieces land here.',diary:'No outfits logged yet. Log what you wore and its pieces go into your Closet.',inspiration:'Save looks, colours and moods you love. Mix & Match follows them.'}[type];box.append(d)}
- for(let x of items){let card=document.createElement('div');card.className='card';const pieces=(x.pieces||[]).map(id=>byId.get(id)).filter(Boolean);
+ for(let x of items){let card=document.createElement('div');card.className='card';card.dataset.id=x.id;const pieces=(x.pieces||[]).map(id=>byId.get(id)).filter(Boolean);
   if(x.photo){let img=document.createElement('img');img.src=x.photo;img.alt=x.title;card.append(img)}else if(pieces.length){card.append(thumbGrid(pieces))}
-  let info=document.createElement('div');info.className='info';let title=document.createElement('b');title.textContent=x.title;info.append(title);let meta=document.createElement('div');meta.className='muted';meta.textContent=[x.date,x.category&&type==='closet'?x.category:'',x.notes].filter(Boolean).join(' · ');info.append(meta);
-  if(pieces.length){const t=document.createElement('div');for(const p of pieces){const s=document.createElement('span');s.className='tag';s.textContent=p.title;t.append(s)}info.append(t)}
+  let info=document.createElement('div');info.className='info';let title=document.createElement('b');title.textContent=x.title;info.append(title);let meta=document.createElement('div');meta.className='muted';meta.textContent=(type==='closet'?[x.category,x.colour,x.fabric,x.notes]:[x.date,x.notes]).filter(Boolean).join(' · ');info.append(meta);
+  if(pieces.length)info.append(pieceList(pieces));
   let del=document.createElement('button');del.className='delete';del.textContent='Remove';del.onclick=async()=>{if(confirm('Remove this entry?'+(type==='diary'&&pieces.length?' (The pieces stay in your Closet.)':''))){let old=records;records=records.filter(r=>r.id!==x.id);if(!await save())records=old;render()}};const acts=document.createElement('div');acts.className='cardacts';const ed=document.createElement('button');ed.className='delete';ed.textContent='Edit';ed.onclick=()=>editCard(x,info);acts.append(ed,del);
   if(type==='closet'&&x.photo){const c=document.createElement('button');c.className='delete';
    if(x.original){c.textContent='Back to original photo';c.onclick=async()=>{x.photo=x.original;delete x.original;x.cutChecked=true;x.recropSkipped=true;await save();render()}}
@@ -257,7 +340,7 @@ async function findPieces(src){const seg=await getSegmenter();const small='data:
   keepMain(m,w,h);let n=0,x0=w,y0=h,x1=0,y1=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(m[y*w+x]>127){n++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
   if(n<w*h*(category==='Shoes'||category==='Accessories'?0.002:0.012))continue;
   const cut=cutout(img,m,w,h,x0,y0,x1+1,y1+1);const col=colourName(cut.rgb);
-  res.push({category,name:col.charAt(0).toUpperCase()+col.slice(1)+' '+noun,photo:cut.photo})}
+  res.push({category,colour:col,name:col.charAt(0).toUpperCase()+col.slice(1)+' '+noun,photo:cut.photo})}
  return res}
 // A plain rectangular crop of the real photo around the piece (no cut-out edges).
 function cutout(img,m,w,h,x0,y0,x1,y1){
@@ -272,6 +355,10 @@ function cutout(img,m,w,h,x0,y0,x1,y1){
  const o=document.createElement('canvas');o.width=W;o.height=H;o.getContext('2d').drawImage(img,X0*fx,Y0*fy,sw,sh,0,0,W,H);
  return{photo:o.toDataURL('image/jpeg',.9),rgb:k?[r/k,g/k,b/k]:[128,128,128]}}
 const CROP_V=2;
+// Detector results are reused per photo, so several pieces of one outfit only run it once.
+const piecesCache=new Map();
+function piecesOf(src){const k=embKey(src);if(!piecesCache.has(k))piecesCache.set(k,findPieces(src).catch(e=>{piecesCache.delete(k);throw e}));return piecesCache.get(k)}
+async function cropForCategory(src,cat){try{const ps=await piecesOf(src);return(ps.find(p=>p.category===cat)||{}).photo||''}catch(e){return ''}}
 function cropSource(x){return x.original||(x.fromOutfit&&records.find(r=>r.id===x.fromOutfit)?.photo)||''}
 // Pieces made with the earlier cut-out look: re-crop them from their original photo.
 function needsRecrop(x){if(x.cropV===CROP_V||x.recropSkipped)return false;const s=cropSource(x);return !!s&&x.photo!==s}
@@ -319,19 +406,19 @@ async function exportForClaude(btn){const closet=closetItems();if(!closet.length
   const data={about:'My Style Book export for Claude. Please suggest mix & match outfits using ONLY the closet pieces below (refer to them by id and title), following my inspiration and avoiding recently worn combinations, and sketch each outfit as a visual board using the pieces\' photos.',
    exported:today(),request:{occasion:occasion||null,follow_inspiration:chosen?(records.find(r=>String(r.id)===chosen)||{}).title:'all'},
    closet:[],inspiration:[],recently_worn:recentDiary(30).slice(0,15).map(d=>({date:d.date,title:d.title,pieces:(d.pieces||[]).map(id=>byId.get(id)?.title).filter(Boolean)}))};
-  for(const c of closet)data.closet.push({id:String(c.id),title:c.title,category:c.category,notes:c.notes||'',photo:await small(c.photo)});
+  for(const c of closet)data.closet.push({id:String(c.id),title:c.title,category:c.category,colour:c.colour||'',fabric:c.fabric||'',notes:c.notes||'',photo:await small(c.photo)});
   for(const i of records.filter(r=>r.type==='inspiration'))data.inspiration.push({title:i.title,notes:i.notes||'',photo:await small(i.photo)});
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));a.download='my-closet-for-claude.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
   $('mm-status').textContent='Saved my-closet-for-claude.json. Attach it in your stylebook chat with Claude and ask for mix & match ideas.'}
  catch(e){alert('Could not pack your closet: '+e.message)}finally{btn.disabled=false;btn.textContent=label}}
 // Quick ideas: NEW combinations of closet pieces, never worn together in any logged outfit.
 let shownMixes=new Set();
-function localMix(closet,insp){const target=new Set(insp.flatMap(i=>colourWords(i.title+' '+i.notes)));const by=c=>closet.filter(x=>x.category===c);
+function localMix(closet,insp){const target=new Set(insp.flatMap(i=>colourWords(i.title+' '+i.notes+' '+(i.colour||''))));const by=c=>closet.filter(x=>x.category===c);
  const diary=records.filter(r=>r.type==='diary'&&r.pieces?.length);const key=(...ids)=>ids.map(String).sort().join('|');
  const wornPairs=new Set(),wornDate=new Map();
  for(const d of diary){const ps=d.pieces.map(String);for(let i=0;i<ps.length;i++){if(!wornDate.has(ps[i])||(d.date||'')>wornDate.get(ps[i]))wornDate.set(ps[i],d.date||'');for(let j=i+1;j<ps.length;j++)wornPairs.add(key(ps[i],ps[j]))}}
  const together=(a,b)=>wornPairs.has(key(a.id,b.id));const cut=new Date(Date.now()-14*864e5).toLocaleDateString('en-CA');
- const colourScore=it=>colourWords(it.title+' '+it.notes).filter(c=>target.has(c)).length*2;
+ const colourScore=it=>colourWords(it.title+' '+it.notes+' '+(it.colour||'')).filter(c=>target.has(c)).length*2;
  const fresh=it=>!wornDate.has(String(it.id))?1.2:(wornDate.get(String(it.id))<cut?.8:0);
  // Core = top + bottom (or a dress) that has never been worn together.
  let cores=[];
@@ -353,7 +440,7 @@ function localMix(closet,insp){const target=new Set(insp.flatMap(i=>colourWords(
   if(core.length===2)why.push(`New combination: you haven't worn the ${core[0].title} with the ${core[1].title} before.`);
   else why.push(`A new way to wear your ${core[0].title}.`);
   const firsts=items.filter(x=>!wornDate.has(String(x.id)));if(firsts.length)why.push(`First outing for the ${firsts.map(x=>x.title).join(' and the ')}.`);
-  const matched=[...new Set(items.flatMap(x=>colourWords(x.title+' '+x.notes)).filter(c=>target.has(c)))];if(matched.length)why.push('Picks up your inspiration colours: '+matched.join(', ')+'.');
+  const matched=[...new Set(items.flatMap(x=>colourWords(x.title+' '+x.notes+' '+(x.colour||''))).filter(c=>target.has(c)))];if(matched.length)why.push('Picks up your inspiration colours: '+matched.join(', ')+'.');
   looks.push({name:names[(looks.length*2+Math.floor(Math.random()*2))%names.length],items,insp:'',why:why.join(' ')})}
  looks.note=!looks.length&&wornTB&&!by('Dresses').length?'You have already worn every top with every bottom. Add new pieces to your Closet for fresh mixes.':'';
  return looks}
@@ -361,7 +448,7 @@ function localMix(closet,insp){const target=new Set(insp.flatMap(i=>colourWords(
 function mePhoto(){return records.find(r=>r.type==='me')?.photo||''}
 function renderMe(){const box=$('mepreview');box.replaceChildren();const src=mePhoto();if(src){const i=document.createElement('img');i.src=src;i.alt='My try-on photo';i.style.cssText='max-height:180px;border-radius:16px;display:block;margin:6px 0 4px';box.append(i)}}
 $('mephoto').onchange=async()=>{const f=$('mephoto').files[0];if(!f)return;const photo='data:image/jpeg;base64,'+await shrink(await readFile(f),1400);const old=records.slice();records=records.filter(r=>r.type!=='me');records.push({id:Date.now(),type:'me',title:'Me',photo});if(!await save()){records=old;return}renderMe();$('mephoto').value='';alert('Saved. "Try it on" will use this photo.')};
-function tryOnPrompt(l){return `Virtual try-on. This image has two parts: on the LEFT is a photo of me; on the RIGHT are the exact clothing pieces for the outfit ("${l.name}"): ${l.items.map(i=>i.title+' ('+i.category.toLowerCase()+')').join(', ')}.
+function tryOnPrompt(l){return `Virtual try-on. This image has two parts: on the LEFT is a photo of me; on the RIGHT are the exact clothing pieces for the outfit ("${l.name}"): ${l.items.map(i=>i.title+' ('+[i.category.toLowerCase(),i.colour,i.fabric].filter(Boolean).join(', ')+')').join('; ')}.
 Create a realistic full-length photo of ME (the woman on the left) wearing exactly these pieces together. Keep my face, hair, skin tone, body shape and proportions exactly as they are. Copy each piece's colour, fabric, fit and details faithfully; do not add other clothing items. Natural daylight, simple neutral background, standing pose.`}
 async function tryOn(l){const me=mePhoto();
  if(!me){alert('First add a photo of yourself under "My try-on photo" (bottom of the page). A full-length photo works best.');$('mepanel').scrollIntoView({behavior:'smooth'});return}
