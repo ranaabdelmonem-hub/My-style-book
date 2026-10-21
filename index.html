@@ -80,7 +80,7 @@ dialog#dupdialog{border:0;border-radius:24px;padding:22px;max-width:440px;width:
 </style>
 <header><h1>My Style Book</h1><small>Your wardrobe, outfits and inspiration</small></header>
 <nav class="tabs"><button class="active" data-tab="closet">Closet</button><button data-tab="diary">Diary</button><button data-tab="inspiration">Ideas</button></nav>
-<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">Add clothing</button><button onclick="toggleMix()">Mix &amp; Match</button></div><div class="panel cutall" id="cutall" hidden><p id="cutall-text" style="margin:0 0 12px"></p><button class="primary" id="cutall-btn" onclick="cutAll()">Crop them all</button><p class="hint" id="cutall-status" style="margin:10px 0 0"></p></div><div class="chips" id="catchips"></div><select id="filter" hidden onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select><div id="mixpanel" class="panel" hidden><h3 style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0">Mix &amp; Match</h3><p class="hint">Outfit ideas from your own closet, following your Ideas board and skipping what you've worn lately.</p>
+<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">Add clothing</button><button onclick="toggleMix()">Mix &amp; Match</button></div><div class="panel cutall" id="cutall" hidden><p id="cutall-text" style="margin:0 0 12px"></p><button class="primary" id="cutall-btn" onclick="cutAll()">Crop them all</button><p class="hint" id="cutall-status" style="margin:10px 0 0"></p></div><div class="chips" id="catchips"></div><select id="filter" hidden onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select><div id="mixpanel" class="panel" hidden><h3 style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0">Mix &amp; Match</h3><p class="hint">Outfit ideas from your own closet, built on the colours and style of your Ideas board, with clashing colours left out. Tip: name the colours in each idea (e.g. “Chocolate brown &amp; blue”, “all-cream tonal”); otherwise they're read from its photo.</p>
 <label>Inspiration to follow</label><select id="mm-insp"></select>
 <label>Occasion (optional)</label><input id="mm-occasion" placeholder="e.g. work, dinner out, weekend brunch">
 <div class="controls" style="margin:4px 0"><button class="primary" id="mm-go" onclick="mixMatch()">Quick ideas</button><button onclick="exportForClaude(this)">Send my closet to Claude</button></div>
@@ -389,13 +389,15 @@ function renderCutBanner(){const box=$('cutall');if(cuttingAll)return;const n1=u
  $('cutall-text').textContent=[n1?`${n1} piece${n1>1?'s':''} still show${n1>1?'':'s'} the whole photo.`:'',n2?`${n2} piece${n2>1?'s':''} still use${n2>1?'':'s'} the old cut-out look.`:''].filter(Boolean).join(' ')+' Crop them so each piece shows on its own.'}
 
 // ---------- Mix & Match ----------
-const COLOURS=['black','white','cream','ivory','beige','camel','tan','brown','chocolate','grey','gray','charcoal','navy','blue','denim','teal','turquoise','green','olive','khaki','sage','mint','emerald','red','burgundy','maroon','wine','pink','blush','rose','fuchsia','purple','lilac','lavender','plum','orange','rust','coral','peach','yellow','mustard','gold','silver','nude','taupe'];
+const COLOURS=['black','white','cream','ivory','beige','camel','tan','brown','chocolate','grey','gray','charcoal','navy','blue','denim','teal','turquoise','green','olive','khaki','sage','mint','emerald','red','burgundy','maroon','wine','pink','blush','rose','fuchsia','purple','lilac','lavender','plum','orange','rust','coral','peach','yellow','mustard','gold','silver','nude','taupe','light blue','light grey','sky','mocha','cognac','ecru','oatmeal','stone','sand','forest','cobalt','lemon','terracotta','ochre'];
 const colourWords=t=>COLOURS.filter(c=>new RegExp('\\b'+c+'\\b','i').test(t||''));
 function recentDiary(days){const cut=new Date(Date.now()-days*864e5).toLocaleDateString('en-CA');return records.filter(r=>r.type==='diary'&&(!r.date||r.date>=cut))}
 async function mixMatch(){const closet=closetItems();const st=$('mm-status'),out=$('mm-results'),btn=$('mm-go');
  if(closet.length<2){st.textContent='Add at least a couple of pieces to your Closet first (or log an outfit with its pieces).';out.replaceChildren();return}
- const looks=localMix(closet,selectedInspiration());showLooks(looks,'New mix');
- st.textContent=looks.length?`${looks.length} new combination(s) from your closet. Tap Quick ideas again for different ones.`:(looks.note||'Not enough pieces to build a full outfit yet. Add tops & bottoms, or dresses, to your Closet.')}
+ const insp=selectedInspiration();btn.disabled=true;st.textContent='Matching your closet to your ideas…';
+ let looks=[];try{looks=await localMix(closet,insp,$('mm-occasion').value.trim())}finally{btn.disabled=false}showLooks(looks,'New mix');
+ st.textContent=!looks.length?(looks.note||'Not enough pieces to build a full outfit yet. Add tops & bottoms, or dresses, to your Closet.'):
+  (looks.note?looks.note+' ':'')+(!insp.length?'Add looks or colour combos to your Ideas board and Quick ideas will follow them. ':'')+`${looks.followed} of ${looks.length} look(s) follow your Ideas. Tap Quick ideas again for different ones.`}
 function selectedInspiration(){const all=records.filter(r=>r.type==='inspiration'),c=$('mm-insp').value;return c?all.filter(i=>String(i.id)===c):all}
 function toggleMix(){const p=$('mixpanel');p.hidden=!p.hidden;if(!p.hidden){p.scrollIntoView({behavior:'smooth',block:'start'});if(!$('mm-results').children.length)mixMatch()}else{$('mm-results').replaceChildren()}}
 // Packs the closet (small cropped photos), inspiration and recent outfits into one file to attach in a Claude chat.
@@ -411,38 +413,97 @@ async function exportForClaude(btn){const closet=closetItems();if(!closet.length
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));a.download='my-closet-for-claude.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
   $('mm-status').textContent='Saved my-closet-for-claude.json. Attach it in your stylebook chat with Claude and ask for mix & match ideas.'}
  catch(e){alert('Could not pack your closet: '+e.message)}finally{btn.disabled=false;btn.textContent=label}}
-// Quick ideas: NEW combinations of closet pieces, never worn together in any logged outfit.
-let shownMixes=new Set();
-function localMix(closet,insp){const target=new Set(insp.flatMap(i=>colourWords(i.title+' '+i.notes+' '+(i.colour||''))));const by=c=>closet.filter(x=>x.category===c);
+// Quick ideas: outfits built from your Ideas board — its colour palette and style — using closet pieces in new combinations.
+let shownMixes=new Set();const paletteCache=new Map();
+const CANON={gray:'grey','light grey':'grey',ivory:'cream',ecru:'cream',oatmeal:'cream',tan:'camel',cognac:'camel',sand:'beige',stone:'beige',nude:'beige',chocolate:'brown',mocha:'brown',maroon:'burgundy',wine:'burgundy',blush:'pink',rose:'pink',sky:'light blue',cobalt:'blue',forest:'green',emerald:'green',mint:'sage',lavender:'lilac',terracotta:'rust',ochre:'mustard',lemon:'yellow',turquoise:'teal'};
+const NEUTRAL=new Set(['black','white','cream','beige','camel','grey','charcoal','navy','denim','brown','khaki','taupe','silver','gold']);
+const pk=(a,b)=>[a,b].sort().join('|');
+// Colour pairings stylists use; any two bright colours NOT listed here are treated as a clash.
+const PAIRS=new Set(['brown|blue','brown|light blue','brown|pink','brown|cream','brown|sage','brown|lilac','camel|navy','camel|black','camel|white','navy|white','navy|cream','black|white','black|red','black|camel','olive|cream','olive|rust','olive|white','olive|camel','olive|denim','burgundy|pink','burgundy|camel','burgundy|navy','burgundy|grey','pink|grey','pink|red','pink|navy','pink|denim','lilac|grey','lilac|cream','mustard|navy','mustard|denim','rust|denim','rust|cream','sage|cream','sage|white','green|blue','green|navy','teal|camel','red|denim','red|navy','orange|navy','orange|pink','yellow|denim','yellow|grey','light blue|white','light blue|beige','light blue|camel','light blue|navy','purple|grey','plum|camel','plum|grey','coral|white','coral|denim','lilac|light blue','sage|light blue','pink|olive','burgundy|olive','rust|navy','mustard|olive'].map(s=>pk(...s.split('|'))));
+function cols(t){const w=colourWords(t).map(c=>CANON[c]||c);if(/\blight blue\b/i.test(t||'')&&!/(^|[^t] )blue/i.test((t||'').replace(/light blue/ig,'')))w.splice(w.indexOf('blue'),1);return [...new Set(w)]}
+const itemCols=it=>{const c=cols(it.colour);return c.length?c:cols(it.title)};
+// shades that satisfy an idea's colour (e.g. light blue or navy count as "blue")
+const SHADES={blue:['light blue','navy','denim','blue','teal'],brown:['brown','camel'],cream:['cream','beige','white'],green:['green','sage','olive'],pink:['pink','coral'],purple:['purple','lilac','plum'],grey:['grey','charcoal'],red:['red','burgundy'],yellow:['yellow','mustard'],orange:['orange','rust']};
+const sat=(c,p)=>c===p||(SHADES[p]||[]).includes(c);
+const brightsOf=S=>S.filter(c=>!NEUTRAL.has(c));
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+// Colour harmony of a set of colours: tonal, neutrals, neutral + one accent, or a known pairing. Clashes return null.
+function harmony(S){S=[...new Set(S)];const B=brightsOf(S);let pairs=0;for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++)if(PAIRS.has(pk(S[i],S[j])))pairs++;
+ const bonus=Math.min(pairs,2)*1.5;
+ if(B.length>=3)return null;
+ if(B.length===2){if(!PAIRS.has(pk(B[0],B[1])))return null;return{score:3+bonus,text:`${cap(B[0])} with ${B[1]} is a pairing stylists love.`,name:`${cap(B[0])} & ${B[1]}`}}
+ if(S.length===1)return{score:3.5,text:`Tonal dressing: ${S[0]} head to toe looks deliberate and elegant.`,name:`Tonal ${S[0]}`};
+ if(B.length===1){const partner=S.find(c=>c!==B[0]&&PAIRS.has(pk(c,B[0])));return{score:3+bonus,text:partner?`A ${partner} base with a pop of ${B[0]}, a classic combination.`:`Neutral base with one pop of ${B[0]}.`,name:`${cap(partner||'neutrals')} & ${B[0]}`}}
+ if(S.length===0)return{score:1,text:'',name:'Easy mix'};
+ let pr=null;for(const a of S)for(const b of S)if(!pr&&a<b&&PAIRS.has(pk(a,b)))pr=[a,b];
+ return{score:2.5+bonus,text:pr?`${cap(pr[0])} and ${pr[1]} are a classic neutral pairing.`:'An all-neutral palette: quiet, polished and easy.',name:pr?pr.map(cap).join(' & '):'Soft neutrals'}}
+const STYLE={mono:/mono|tonal|head[- ]to[- ]toe|all[- ]?(black|white|beige|cream|brown|grey|navy)/i,neutral:/neutral|minimal|quiet luxury|old money|clean|classic|timeless|understated/i,pop:/\bpop\b|bold|colou?rful|bright|statement|vibrant/i,casual:/casual|weekend|relaxed|street|comfy|brunch|errand|school run/i,smart:/office|work|smart|polished|tailored|business|meeting|interview/i,evening:/dinner|evening|night|party|date|wedding|event|cocktail/i};
+const styleOf=t=>Object.keys(STYLE).filter(k=>STYLE[k].test(t||''));
+const KW={smart:/blazer|shirt|blouse|trouser|tailor|pleat|pencil|loafer|pump|heel|court|oxford|silk|satin|knit|cardigan|midi|slingback|mule|structured|wide[- ]leg|ballet/i,casual:/jean|denim|tee\b|t-shirt|tshirt|sneaker|trainer|hoodie|sweat|jogger|shorts|cargo|flip|slide|canvas|tank|legging|sport/i,evening:/satin|silk|sequin|velvet|heel|sandal|clutch|lace|slip|maxi|metallic|gold|silver|earring|drape/i};
+function occasionFit(items,occ){if(!occ.length)return 0;let s=0;const t=x=>x.title+' '+(x.fabric||'');
+ for(const x of items){if(occ.includes('smart')){if(KW.smart.test(t(x)))s+=1;if(KW.casual.test(t(x)))s-=1.5}
+  if(occ.includes('evening')){if(KW.evening.test(t(x)))s+=1;if(KW.casual.test(t(x)))s-=1.5}
+  if(occ.includes('casual')){if(KW.casual.test(t(x)))s+=1;if(/blazer|pump|sequin|satin/i.test(t(x)))s-=.5}}return s}
+// Palette of an idea: colours named in it, else the main colours of its photo.
+async function inspPalette(i){const k=i.id+'|'+i.title+'|'+(i.notes||'')+'|'+(i.photo||'').length;if(paletteCache.has(k))return paletteCache.get(k);
+ let p={cols:cols(i.title+' '+(i.notes||'')+' '+(i.colour||'')),src:'words'};
+ if(!p.cols.length&&i.photo){try{const img=await loadImg(i.photo);const N=48,c=document.createElement('canvas');c.width=N;c.height=N;const g=c.getContext('2d');
+   const s=Math.min(img.width,img.height)*.8;g.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,N,N);const d=g.getImageData(0,0,N,N).data,count={};let tot=0;
+   for(let j=0;j<d.length;j+=4){const n=CANON[colourName([d[j],d[j+1],d[j+2]])]||colourName([d[j],d[j+1],d[j+2]]);if(n==='white')continue;count[n]=(count[n]||0)+1;tot++}
+   p={cols:Object.entries(count).filter(([,v])=>v/tot>=.12).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n])=>n),src:'photo'}}catch(e){}}
+ paletteCache.set(k,p);return p}
+async function localMix(closet,insp,occasion=''){const by=c=>closet.filter(x=>x.category===c);
  const diary=records.filter(r=>r.type==='diary'&&r.pieces?.length);const key=(...ids)=>ids.map(String).sort().join('|');
  const wornPairs=new Set(),wornDate=new Map();
  for(const d of diary){const ps=d.pieces.map(String);for(let i=0;i<ps.length;i++){if(!wornDate.has(ps[i])||(d.date||'')>wornDate.get(ps[i]))wornDate.set(ps[i],d.date||'');for(let j=i+1;j<ps.length;j++)wornPairs.add(key(ps[i],ps[j]))}}
  const together=(a,b)=>wornPairs.has(key(a.id,b.id));const cut=new Date(Date.now()-14*864e5).toLocaleDateString('en-CA');
- const colourScore=it=>colourWords(it.title+' '+it.notes+' '+(it.colour||'')).filter(c=>target.has(c)).length*2;
- const fresh=it=>!wornDate.has(String(it.id))?1.2:(wornDate.get(String(it.id))<cut?.8:0);
- // Core = top + bottom (or a dress) that has never been worn together.
+ const fresh=it=>!wornDate.has(String(it.id))?1:(wornDate.get(String(it.id))<cut?.6:0);
+ const pals=[];for(const i of insp){const p=await inspPalette(i);pals.push({insp:i,cols:p.cols,src:p.src,style:styleOf(i.title+' '+(i.notes||''))})}
+ const occ=styleOf(occasion);
+ // How well a set of pieces follows one idea: its colours, and its style (tonal / neutral / one pop).
+ const follow=(items,p)=>{const CC=[...new Set(items.flatMap(itemCols))];if(!CC.length)return{score:-5,hits:[]};
+  const hits=p.cols.filter(c=>CC.some(x=>sat(x,c)));const off=brightsOf(CC).filter(c=>!p.cols.some(x=>sat(c,x))).length;
+  let s=hits.length*4-off*3+(p.cols.length&&CC.every(c=>p.cols.some(x=>sat(c,x)))?2:0);const B=brightsOf(CC);
+  if(p.style.includes('mono'))s+=CC.length===1?3:-1;if(p.style.includes('neutral'))s+=B.length?-2:2;if(p.style.includes('pop'))s+=B.length===1?2:-1;
+  const need=p.cols.length?Math.min(2,p.cols.length):0;
+  const styleOnly=!p.cols.length&&p.style.some(k=>['mono','neutral','pop'].includes(k))&&s>=2;
+  return{score:s,hits,ok:(need&&hits.length>=need&&off===0)||styleOnly}};
  let cores=[];
  for(const t of by('Tops'))for(const b of by('Bottoms'))if(!together(t,b))cores.push([t,b]);
  for(const d of by('Dresses'))cores.push([d]);
  const allNewTB=by('Tops').length*by('Bottoms').length,wornTB=allNewTB-cores.filter(c=>c.length===2).length;
- cores=cores.map(core=>{let s=core.reduce((a,x)=>a+colourScore(x)+fresh(x),0)+Math.random()*1.6;
-  if(core.length===2&&core[0].fromOutfit&&core[0].fromOutfit!==core[1].fromOutfit)s+=1; // mixing pieces from different outfits
-  if(shownMixes.has(key(...core.map(x=>x.id))))s-=6; // rotate: favour ones not shown yet
-  return{core,s}}).sort((a,b)=>b.s-a.s);
- const pickExtra=(list,core)=>{let best=null,bs=-1e9;for(const x of list){const clash=core.filter(c=>together(c,x)).length;const s=colourScore(x)+fresh(x)*.5-clash*1.5+Math.random();if(s>bs){bs=s;best=x}}return best};
- const looks=[],used=new Set();const names=['Fresh pairing','Weekend mix','Polished mix','Easy chic','Soft mix','Statement mix','Off-duty look'];
- for(const {core} of cores){if(looks.length>=3)break;if(core.some(x=>used.has(x.id))&&cores.length>3)continue;
-  const items=[...core];const sh=pickExtra(by('Shoes'),core);if(sh)items.push(sh);const ac=pickExtra(by('Accessories'),core);if(ac)items.push(ac);
-  // a dress only counts as new if the full look hasn't been worn
-  if(core.length===1&&items.length>1&&items.slice(1).every(x=>together(core[0],x)))continue;
-  core.forEach(x=>used.add(x.id));shownMixes.add(key(...core.map(x=>x.id)));
-  const why=[];
-  if(core.length===2)why.push(`New combination: you haven't worn the ${core[0].title} with the ${core[1].title} before.`);
-  else why.push(`A new way to wear your ${core[0].title}.`);
-  const firsts=items.filter(x=>!wornDate.has(String(x.id)));if(firsts.length)why.push(`First outing for the ${firsts.map(x=>x.title).join(' and the ')}.`);
-  const matched=[...new Set(items.flatMap(x=>colourWords(x.title+' '+x.notes+' '+(x.colour||''))).filter(c=>target.has(c)))];if(matched.length)why.push('Picks up your inspiration colours: '+matched.join(', ')+'.');
-  looks.push({name:names[(looks.length*2+Math.floor(Math.random()*2))%names.length],items,insp:'',why:why.join(' ')})}
- looks.note=!looks.length&&wornTB&&!by('Dresses').length?'You have already worn every top with every bottom. Add new pieces to your Closet for fresh mixes.':'';
+ cores=cores.map(core=>{const h=harmony(core.flatMap(itemCols));if(!h)return null; // clashing colours are never suggested
+  let best=null;for(const p of pals){const f=follow(core,p);if(f.ok&&(!best||f.score>best.f.score))best={p,f}}
+  let s=h.score+(best?10+best.f.score:0)+occasionFit(core,occ)*1.5+core.reduce((a,x)=>a+fresh(x),0)+Math.random()*1.2;
+  if(shownMixes.has(key(...core.map(x=>x.id))))s-=5; // rotate: favour ones not shown yet
+  return{core,s,best}}).filter(Boolean).sort((a,b)=>b.s-a.s);
+ const pickExtra=(list,core,p)=>{let best=null,bs=-1e9;const base=core.flatMap(itemCols);
+  for(const x of list){const xc=itemCols(x),h=harmony([...base,...xc]);if(!h)continue;
+   let s=h.score+occasionFit([x],occ)+fresh(x)*.5-core.filter(c=>together(c,x)).length*1.5+Math.random()*.8;
+   if(p){s+=xc.filter(c=>p.cols.some(x=>sat(c,x))).length*2-brightsOf(xc).filter(c=>!p.cols.some(x=>sat(c,x))).length*3}
+   if(s>bs){bs=s;best=x}}return best};
+ const looks=[],used=new Set(),usedInsp=new Map();
+ // prefer a different idea for each look when several ideas fit
+ const ranked=cores.map(c=>c);
+ while(looks.length<3&&ranked.length){ranked.forEach(c=>c.adj=c.s-(c.best?(usedInsp.get(c.best.p.insp.id)||0)*4:0)-(c.core.some(x=>used.has(x.id))?8:0));ranked.sort((a,b)=>b.adj-a.adj);
+  const {core,best}=ranked.shift();if(core.some(x=>used.has(x.id))&&ranked.some(c=>!c.core.some(x=>used.has(x.id))))continue;
+  const p=best?.p;const items=[...core];const sh=pickExtra(by('Shoes'),core,p);if(sh)items.push(sh);const ac=pickExtra(by('Accessories'),items,p);if(ac)items.push(ac);
+  if(core.length===1&&items.length>1&&items.slice(1).every(x=>together(core[0],x)))continue; // whole dress look already worn
+  core.forEach(x=>used.add(x.id));shownMixes.add(key(...core.map(x=>x.id)));if(p)usedInsp.set(p.insp.id,(usedInsp.get(p.insp.id)||0)+1);
+  const h=harmony(items.flatMap(itemCols))||harmony(core.flatMap(itemCols));const why=[];
+  if(p){const f=follow(items,p);const who=f.hits.map(c=>{const its=core.filter(x=>itemCols(x).some(y=>sat(y,c)));return its.length?`${c} from the ${its.map(x=>x.title).join(' and ')}`:''}).filter(Boolean);
+   why.push(`Follows your “${p.insp.title}” idea${p.src==='photo'&&p.cols.length?' (colours read from its photo: '+p.cols.join(', ')+')':''}${who.length?': '+who.join(', '):''}.`);
+   if(p.style.includes('mono'))why.push('Kept tonal, like your inspiration.');else if(p.style.includes('neutral'))why.push('Kept to neutrals, like your inspiration.');else if(p.style.includes('pop'))why.push('One colour pop, like your inspiration.')}
+  if(h&&h.text)why.push(h.text);
+  if(occ.length&&occasionFit(items,occ)>=2)why.push(`Pieces suit ${occasion}.`);
+  why.push(core.length===2?`New pairing: you haven't worn these two together yet.`:`A new way to wear your ${core[0].title}.`);
+  const fh=p?follow(items,p).hits:[];const name=p&&fh.length?(fh.length===1&&p.style.includes('mono')?'Tonal '+fh[0]:cap(fh.join(' & '))):p?p.insp.title:(h?h.name:'Fresh mix');
+  looks.push({name,items,insp:p?p.insp.title:'',source:p?'Inspired mix':'Colour-matched mix',why:why.join(' ')})}
+ const chosenOne=insp.length===1&&pals[0];
+ looks.followed=looks.filter(l=>l.insp).length;
+ if(chosenOne&&!looks.followed&&pals[0].cols.length){const have=new Set(closet.flatMap(itemCols));const miss=pals[0].cols.filter(c=>![...have].some(x=>sat(x,c)));
+  looks.note=miss.length?`Your closet has no ${miss.join(' or ')} pieces yet, so “${pals[0].insp.title}” can't be recreated. These are the best colour-matched looks instead.`:`No new combination fully follows “${pals[0].insp.title}” right now (those pairings may already be in your Diary). These are the best colour-matched looks instead.`}
+ if(!looks.length)looks.note=wornTB&&!by('Dresses').length&&!cores.length?'You have already worn every top with every bottom, or the remaining pairs clash. Add new pieces to your Closet for fresh mixes.':'';
  return looks}
 // ---------- Try it on (with Gemini) ----------
 function mePhoto(){return records.find(r=>r.type==='me')?.photo||''}
@@ -465,7 +526,7 @@ async function tryOn(l){const me=mePhoto();
  catch(e){alert('Could not prepare the try-on image: '+e.message)}}
 function showLooks(looks,source){const out=$('mm-results');out.replaceChildren();
  for(const l of looks){const card=document.createElement('div');card.className='look';card.append(thumbGrid(l.items));const info=document.createElement('div');info.className='info';
-  const badge=document.createElement('div');badge.className='badge';badge.textContent=source+(l.insp?' · inspired by '+l.insp:'');const h=document.createElement('h3');h.textContent=l.name;
+  const badge=document.createElement('div');badge.className='badge';badge.textContent=(l.source||source)+(l.insp?' · '+l.insp:'');const h=document.createElement('h3');h.textContent=l.name;
   const tags=document.createElement('div');for(const it of l.items){const s=document.createElement('span');s.className='tag';s.textContent=it.title;tags.append(s)}
   const p=document.createElement('p');p.textContent=l.why;const b=document.createElement('button');b.className='primary';b.textContent='I wore this today';
   b.onclick=async()=>{const old=records.slice();records.unshift({id:Date.now(),type:'diary',title:l.name,category:'',date:today(),notes:'From Mix & Match',photo:'',pieces:l.items.map(i=>i.id)});if(!await save()){records=old;return}render();b.disabled=true;b.textContent='Added to your Diary'};
