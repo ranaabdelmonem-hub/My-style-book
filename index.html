@@ -63,7 +63,7 @@ dialog#dupdialog{border:0;border-radius:24px;padding:22px;max-width:440px;width:
 </style>
 <header><h1>My Style Book</h1><small>Your wardrobe, outfits and inspiration</small></header>
 <nav class="tabs"><button class="active" data-tab="closet">Closet</button><button data-tab="diary">Diary</button><button data-tab="inspiration">Ideas</button></nav>
-<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">Add clothing</button><button onclick="toggleMix()">Mix &amp; Match</button></div><div class="panel cutall" id="cutall" hidden><p id="cutall-text" style="margin:0 0 12px"></p><button class="primary" id="cutall-btn" onclick="cutAll()">Cut them all out</button><p class="hint" id="cutall-status" style="margin:10px 0 0"></p></div><div class="chips" id="catchips"></div><select id="filter" hidden onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select><div id="mixpanel" class="panel" hidden><h3 style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0">Mix &amp; Match</h3><p class="hint">Outfit ideas from your own closet, following your Ideas board and skipping what you've worn lately.</p>
+<section id="closet" class="board active"><h2>My Closet</h2><div class="controls"><button class="primary" onclick="add('closet')">Add clothing</button><button onclick="toggleMix()">Mix &amp; Match</button></div><div class="panel cutall" id="cutall" hidden><p id="cutall-text" style="margin:0 0 12px"></p><button class="primary" id="cutall-btn" onclick="cutAll()">Crop them all</button><p class="hint" id="cutall-status" style="margin:10px 0 0"></p></div><div class="chips" id="catchips"></div><select id="filter" hidden onchange="render()"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select><div id="mixpanel" class="panel" hidden><h3 style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0">Mix &amp; Match</h3><p class="hint">Outfit ideas from your own closet, following your Ideas board and skipping what you've worn lately.</p>
 <label>Inspiration to follow</label><select id="mm-insp"></select>
 <label>Occasion (optional)</label><input id="mm-occasion" placeholder="e.g. work, dinner out, weekend brunch">
 <div class="controls" style="margin:4px 0"><button class="primary" id="mm-go" onclick="mixMatch()">Quick ideas</button><button onclick="exportForClaude(this)">Send my closet to Claude</button></div>
@@ -73,7 +73,7 @@ dialog#dupdialog{border:0;border-radius:24px;padding:22px;max-width:440px;width:
 <section id="diary" class="board"><h2>Outfit Diary</h2><p class="hint">Every piece you list in an outfit is added to your Closet automatically.</p><div class="controls"><button class="primary" onclick="add('diary')">Log outfit</button></div><div class="grid" id="diarygrid"></div></section>
 <section id="inspiration" class="board"><h2>My Inspiration</h2><div class="controls"><button class="primary" onclick="add('inspiration')">Add inspiration</button></div><div class="grid" id="inspirationgrid"></div></section>
 <div class="panel" id="form"><h2 id="formtitle">Add photo</h2><form id="entryform"><label>Original photo (kept unchanged)</label><input type="file" id="photo" accept="image/*"><div id="preview"></div><p class="autostatus" id="autostatus" hidden></p><div id="cropbox" hidden><label>Which piece is this?</label><div class="cropchoices" id="cropchoices"></div></div><label>Title / description</label><input id="title" required placeholder="e.g. Olive wide-leg trousers"><div id="categorybox"><label>Category</label><select id="category"><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Shoes</option><option>Accessories</option><option>Other</option></select></div><div id="datebox" hidden><label>Date worn</label><input id="date" type="date"></div>
-<div id="piecesbox" hidden><label>Pieces in this outfit</label><p class="hint" style="margin:2px 0 6px">When you choose the photo, each piece is found and cut out automatically. Rename them if you like, ✕ any you don't want. New pieces go into your Closet when you save.</p><div id="existingwrap"><p class="hint" style="margin:6px 0 0">Already in your closet? Tap to tag:</p><div class="chips" id="existingpieces"></div></div><div id="newpieces"></div><div class="controls" style="margin:8px 0 14px"><button type="button" onclick="addPieceRow()">Add a piece</button></div></div>
+<div id="piecesbox" hidden><label>Pieces in this outfit</label><p class="hint" style="margin:2px 0 6px">When you choose the photo, each piece is found and cropped automatically. Rename them if you like, ✕ any you don't want. New pieces go into your Closet when you save.</p><div id="existingwrap"><p class="hint" style="margin:6px 0 0">Already in your closet? Tap to tag:</p><div class="chips" id="existingpieces"></div></div><div id="newpieces"></div><div class="controls" style="margin:8px 0 14px"><button type="button" onclick="addPieceRow()">Add a piece</button></div></div>
 <label>Colours, notes or clothing IDs</label><textarea id="notes" rows="2"></textarea><div class="controls"><button type="submit" class="primary">Save</button><button type="button" onclick="document.getElementById('form').style.display='none'">Cancel</button></div></form></div>
 <dialog id="dupdialog" aria-labelledby="dup-title"><h3 id="dup-title" style="font-family:Italiana,serif;font-weight:400;font-size:26px;margin:0 0 6px"></h3><p class="hint" style="margin:0 0 14px">This looks like a piece already in your Closet. Same piece or a different one?</p><div class="dup-pair"><figure><img id="dup-old" alt="In your closet"><figcaption>In your closet<br><b id="dup-oldname"></b></figcaption></figure><figure><img id="dup-new" alt="New photo"><figcaption>Adding now<br><b id="dup-newname"></b></figcaption></figure></div><div class="controls" style="margin-bottom:0"><button class="primary" id="dup-same"></button><button id="dup-new-btn">It's a different piece</button></div></dialog>
 <section class="settings"><h2>Photos &amp; backup</h2>
@@ -110,14 +110,14 @@ async function autoDetect(){if(current==='inspiration'||!pendingPhoto)return;con
   if(current==='diary'){if(!pieces.length){setAuto('No separate pieces found in this photo — add them yourself with Add a piece.');return}
    [...$('newpieces').children].forEach(r=>{if(!r.querySelector('.pname').value.trim())r.remove()});
    for(const p of pieces)addPieceRow(p.name,p.category,null,p.photo);
-   setAuto(`Found ${pieces.length} piece(s) and cut them out. Already own one? Tap ✕ on it and tag it above instead.`)}
+   setAuto(`Found ${pieces.length} piece(s) and cropped them. Already own one? Tap ✕ on it and tag it above instead.`)}
   else{showCropChoices(pieces)}
  }catch(e){if(token===detectToken)setAuto('Auto-detection is unavailable right now ('+e.message+'). You can still add pieces yourself.')}}
 function showCropChoices(pieces){const box=$('cropchoices');box.replaceChildren();if(!pieces.length){setAuto('');return}
  const choose=(btn,p)=>{box.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));pendingCrop=p?p.photo:'';if(p){$('category').value=p.category;if(!$('title').value.trim()||$('title').dataset.auto==='1'){$('title').value=p.name;$('title').dataset.auto='1'}}showPreview()};
  const mk=(label,src,p)=>{const b=document.createElement('button');b.type='button';const i=document.createElement('img');i.src=src;i.alt=label;b.append(i,document.createTextNode(label));b.onclick=()=>choose(b,p);box.append(b);return b};
  const whole=mk('Whole photo',pendingPhoto,null);const btns=pieces.map(p=>mk(p.name,p.photo,p));
- $('cropbox').hidden=false;setAuto('Tap the piece you are adding — it will be saved cut out on its own.');
+ $('cropbox').hidden=false;setAuto('Tap the piece you are adding — it will be saved cropped on its own.');
  if(pieces.length===1)choose(btns[0],pieces[0]);else choose(whole,null)}
 $('title').oninput=()=>{$('title').dataset.auto='0'};
 
@@ -137,12 +137,12 @@ async function saveEntry(){
  let photo=pendingPhoto;if(!photo){const f=$('photo').files[0];if(f)photo=await readFile(f)}
  const old=records.slice();const id=Date.now();const title=$('title').value.trim();const date=$('date').value;
  const useCrop=current==='closet'&&pendingCrop;const category=$('category').value;
- const item={id,type:current,title,category,date:current==='diary'?date:'',notes:$('notes').value,photo:useCrop?pendingCrop:photo};if(useCrop)item.original=photo;if(pendingDriveId)item.driveId=pendingDriveId;
+ const item={id,type:current,title,category,date:current==='diary'?date:'',notes:$('notes').value,photo:useCrop?pendingCrop:photo};if(useCrop){item.original=photo;item.cropV=CROP_V}if(pendingDriveId)item.driveId=pendingDriveId;
  // Already own this piece? Offer to update the existing item instead of adding a duplicate.
  if(current==='closet'&&item.photo){const d=await findDuplicate(item.photo,category,[]);
   if(d){const choice=await askSame(item.photo,d.item);if(choice==='cancel')return;
    if(choice==='same'){const it=d.item,prev={photo:it.photo,original:it.original,emb:it.emb,embKey:it.embKey,cutChecked:it.cutChecked};
-    if(!it.original)it.original=it.photo;it.photo=item.photo;it.emb=d.emb;it.embKey=embKey(item.photo);it.cutChecked=true;
+    if(!it.original)it.original=it.photo;it.photo=item.photo;it.emb=d.emb;it.embKey=embKey(item.photo);it.cutChecked=true;it.cropV=item.cropV;it.recropSkipped=true;
     if(!await save()){Object.assign(it,prev);return}
     $('form').style.display='none';render();alert(`Updated "${it.title}" with the new photo. No duplicate added.`);return}}}
  let added=[],linked=0,matched=[];
@@ -154,7 +154,7 @@ async function saveEntry(){
    const cat=row.querySelector('.pcat').value;
    if(rowPhotos.has(row)){const d=await findDuplicate(piecePhoto,cat,ids);
     if(d){const choice=await askSame(piecePhoto,d.item,name);if(choice==='cancel')return;if(choice==='same'){ids.push(d.item.id);matched.push(d.item.title);continue}}}
-   const pid=id+1+added.length;records.unshift({id:pid,type:'closet',title:name,category:cat,date:'',notes:'From outfit "'+title+'"'+(date?' · '+date:''),photo:piecePhoto,fromOutfit:id,cutChecked:true});ids.push(pid);added.push(name)}
+   const pid=id+1+added.length;records.unshift({id:pid,type:'closet',title:name,category:cat,date:'',notes:'From outfit "'+title+'"'+(date?' · '+date:''),photo:piecePhoto,fromOutfit:id,cutChecked:true,cropV:rowPhotos.has(row)?CROP_V:undefined});ids.push(pid);added.push(name)}
   item.pieces=ids}
  records.unshift(item);
  if(!await save()){records=old;return}
@@ -170,8 +170,8 @@ async function embed(src){const {tf,proc,vis}=await getClip();const img=await tf
 const cosine=(a,b)=>{let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s};
 function setDupStatus(msg){setAuto(msg)}
 async function itemEmbedding(x){if(x.emb&&x.embKey===embKey(x.photo))return x.emb;
- // A piece still showing the whole outfit photo is cut out first, so it can be compared fairly.
- if(!x.original&&!x.cutChecked){try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);if(p){x.original=x.photo;x.photo=p.photo}else x.cutChecked=true}catch(e){}}
+ // A piece still showing the whole outfit photo is cropped first, so it can be compared fairly.
+ if(!x.original&&!x.cutChecked){try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);if(p){x.original=x.photo;x.photo=p.photo;x.cropV=CROP_V}else x.cutChecked=true}catch(e){}}
  x.emb=await embed(x.photo);x.embKey=embKey(x.photo);return x.emb}
 async function findDuplicate(photo,category,excludeIds){
  const cands=closetItems().filter(x=>x.photo&&(x.category===category||category==='Other'||x.category==='Other')&&!excludeIds.includes(x.id));if(!cands.length)return null;
@@ -201,8 +201,8 @@ function render(){renderCatChips();renderCutBanner();const byId=new Map(records.
   if(pieces.length){const t=document.createElement('div');for(const p of pieces){const s=document.createElement('span');s.className='tag';s.textContent=p.title;t.append(s)}info.append(t)}
   let del=document.createElement('button');del.className='delete';del.textContent='Remove';del.onclick=async()=>{if(confirm('Remove this entry?'+(type==='diary'&&pieces.length?' (The pieces stay in your Closet.)':''))){let old=records;records=records.filter(r=>r.id!==x.id);if(!await save())records=old;render()}};const acts=document.createElement('div');acts.className='cardacts';acts.append(del);
   if(type==='closet'&&x.photo){const c=document.createElement('button');c.className='delete';
-   if(x.original){c.textContent='Back to original photo';c.onclick=async()=>{x.photo=x.original;delete x.original;x.cutChecked=true;await save();render()}}
-   else{c.textContent='Cut out';c.onclick=()=>cutOutItem(x,c)}
+   if(x.original){c.textContent='Back to original photo';c.onclick=async()=>{x.photo=x.original;delete x.original;x.cutChecked=true;x.recropSkipped=true;await save();render()}}
+   else{c.textContent='Crop';c.onclick=()=>cutOutItem(x,c)}
    acts.append(c)}
   info.append(acts);card.append(info);box.append(card)}}
  const sel=$('mm-insp'),prev=sel.value;sel.replaceChildren();const all=document.createElement('option');all.value='';all.textContent='All my inspiration';sel.append(all);
@@ -244,34 +244,47 @@ async function findPieces(src){const seg=await getSegmenter();const small='data:
   const cut=cutout(img,m,w,h,x0,y0,x1+1,y1+1);const col=colourName(cut.rgb);
   res.push({category,name:col.charAt(0).toUpperCase()+col.slice(1)+' '+noun,photo:cut.photo})}
  return res}
-function cutout(img,m,w,h,x0,y0,x1,y1){const px=Math.round((x1-x0)*.06)+2,py=Math.round((y1-y0)*.06)+2;x0=Math.max(0,x0-px);y0=Math.max(0,y0-py);x1=Math.min(w,x1+px);y1=Math.min(h,y1+py);
- const fx=img.width/w,fy=img.height/h,sw=(x1-x0)*fx,sh=(y1-y0)*fy,s=Math.min(1,900/Math.max(sw,sh)),W=Math.max(1,Math.round(sw*s)),H=Math.max(1,Math.round(sh*s));
- const mc=document.createElement('canvas');mc.width=w;mc.height=h;const md=mc.getContext('2d').createImageData(w,h);for(let i=0;i<m.length;i++){md.data[i*4+3]=m[i]}mc.getContext('2d').putImageData(md,0,0);
- const t=document.createElement('canvas');t.width=W;t.height=H;const tc=t.getContext('2d');tc.drawImage(img,x0*fx,y0*fy,sw,sh,0,0,W,H);tc.globalCompositeOperation='destination-in';tc.filter='blur(1px)';tc.drawImage(mc,x0,y0,x1-x0,y1-y0,0,0,W,H);
- // average colour of the piece itself
- const d=tc.getImageData(0,0,W,H).data;let r=0,g=0,b=0,k=0;for(let i=0;i<d.length;i+=16)if(d[i+3]>200){r+=d[i];g+=d[i+1];b+=d[i+2];k++}
- const o=document.createElement('canvas');o.width=W;o.height=H;const oc=o.getContext('2d');oc.fillStyle='#fff';oc.fillRect(0,0,W,H);oc.drawImage(t,0,0);
+// A plain rectangular crop of the real photo around the piece (no cut-out edges).
+function cutout(img,m,w,h,x0,y0,x1,y1){
+ // colour of the piece itself, from the detector's mask
+ let r=0,g=0,b=0,k=0;const sc=document.createElement('canvas');sc.width=w;sc.height=h;const sg=sc.getContext('2d');sg.drawImage(img,0,0,w,h);const px=sg.getImageData(0,0,w,h).data;
+ for(let i=0;i<m.length;i+=3)if(m[i]>200){r+=px[i*4];g+=px[i*4+1];b+=px[i*4+2];k++}
+ // generous padding, then keep the shape between portrait 3:5 and landscape 5:4 so it reads like a product photo
+ let bw=x1-x0,bh=y1-y0,cx=(x0+x1)/2,cy=(y0+y1)/2;bw*=1.18;bh*=1.12;
+ if(bw/bh<0.6)bw=bh*0.6;if(bw/bh>1.25)bh=bw/1.25;
+ bw=Math.min(bw,w);bh=Math.min(bh,h);let X0=Math.max(0,Math.min(w-bw,cx-bw/2)),Y0=Math.max(0,Math.min(h-bh,cy-bh/2));
+ const fx=img.width/w,fy=img.height/h,sw=bw*fx,sh=bh*fy,s=Math.min(1,1000/Math.max(sw,sh)),W=Math.max(1,Math.round(sw*s)),H=Math.max(1,Math.round(sh*s));
+ const o=document.createElement('canvas');o.width=W;o.height=H;o.getContext('2d').drawImage(img,X0*fx,Y0*fy,sw,sh,0,0,W,H);
  return{photo:o.toDataURL('image/jpeg',.9),rgb:k?[r/k,g/k,b/k]:[128,128,128]}}
-async function cutOutItem(x,btn){btn.disabled=true;btn.textContent=segReady?'Cutting out…':'Loading detector…';
- try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);
-  if(!p){x.cutChecked=true;await save();render();alert(pieces.length?`Couldn't find a piece in the "${x.category}" category in this photo. Found: ${pieces.map(p=>p.name).join(', ')}. Change the item's category, or log the photo in your Diary to split it into pieces.`:'No clothing piece found in this photo — it may already be cut out.');return}
-  const old=x.photo;x.original=old;x.photo=p.photo;if(!await save()){x.photo=old;delete x.original}render()}
- catch(e){alert('Could not cut out the piece: '+e.message)}finally{btn.disabled=false;btn.textContent='Cut out'}}
-// Pieces still showing a whole photo: not cut out yet, and not already checked.
-function uncutItems(){return closetItems().filter(x=>x.photo&&!x.original&&!x.cutChecked)}
+const CROP_V=2;
+function cropSource(x){return x.original||(x.fromOutfit&&records.find(r=>r.id===x.fromOutfit)?.photo)||''}
+// Pieces made with the earlier cut-out look: re-crop them from their original photo.
+function needsRecrop(x){if(x.cropV===CROP_V||x.recropSkipped)return false;const s=cropSource(x);return !!s&&x.photo!==s}
+async function cropFrom(x,src){const pieces=await findPieces(src);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);
+ if(!p)return{found:pieces};x.original=src;x.photo=p.photo;x.cropV=CROP_V;return{ok:true}}
+async function cutOutItem(x,btn){btn.disabled=true;btn.textContent=segReady?'Cropping…':'Loading detector…';
+ const prev={photo:x.photo,original:x.original,cropV:x.cropV};
+ try{const res=await cropFrom(x,needsRecrop(x)?cropSource(x):x.photo);
+  if(!res.ok){x.cutChecked=true;x.recropSkipped=true;await save();render();alert(res.found.length?`Couldn't find a piece in the "${x.category}" category in this photo. Found: ${res.found.map(p=>p.name).join(', ')}. Change the item's category, or log the photo in your Diary to split it into pieces.`:'No clothing piece found in this photo. It may already be cropped.');return}
+  if(!await save())Object.assign(x,prev);render()}
+ catch(e){Object.assign(x,prev);alert('Could not crop the piece: '+e.message)}finally{btn.disabled=false;btn.textContent='Crop'}}
+// Pieces still showing a whole photo, or still using the old cut-out look.
+function uncutItems(){return closetItems().filter(x=>x.photo&&!x.original&&!x.cutChecked&&!needsRecrop(x))}
+function cropQueue(){return[...uncutItems(),...closetItems().filter(needsRecrop)]}
 let cuttingAll=false;
-async function cutAll(){if(cuttingAll)return;const list=uncutItems();if(!list.length)return;cuttingAll=true;const btn=$('cutall-btn'),st=$('cutall-status');btn.disabled=true;
+async function cutAll(){if(cuttingAll)return;const list=cropQueue();if(!list.length)return;cuttingAll=true;const btn=$('cutall-btn'),st=$('cutall-status');btn.disabled=true;
  let done=0,skipped=0;
- try{for(const [i,x] of list.entries()){st.textContent=(segReady?'':'Loading the detector (first time only)… ')+`Cutting out ${i+1} of ${list.length}: ${x.title}`;
-   try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);
-    if(p){x.original=x.photo;x.photo=p.photo;done++}else{x.cutChecked=true;skipped++}
+ try{for(const [i,x] of list.entries()){st.textContent=(segReady?'':'Loading the detector (first time only)… ')+`Cropping ${i+1} of ${list.length}: ${x.title}`;
+   try{const re=needsRecrop(x);const res=await cropFrom(x,re?cropSource(x):x.photo);
+    if(res.ok)done++;else{if(re)x.recropSkipped=true;else x.cutChecked=true;skipped++}
     await save();render()}catch(e){skipped++;if(i===0&&!segReady)throw e}}
-  st.textContent=`Done: ${done} piece(s) cut out`+(skipped?`, ${skipped} left as they were (no matching piece found — use Cut out on the card after checking its category).`:'.')}
+  st.textContent=`Done: ${done} piece(s) cropped`+(skipped?`, ${skipped} left as they were (no matching piece found. Check the card's category, then tap Crop).`:'.')}
  catch(e){st.textContent='Could not load the detector: '+e.message+'. Check your connection and try again.'}
  finally{cuttingAll=false;btn.disabled=false;renderCutBanner()}}
-function renderCutBanner(){const n=uncutItems().length,box=$('cutall');if(cuttingAll)return;
- if(!n){if(!$('cutall-status').textContent.startsWith('Done'))box.hidden=true;$('cutall-btn').hidden=true;return}
- box.hidden=false;$('cutall-btn').hidden=false;$('cutall-text').textContent=`${n} piece${n>1?'s':''} still show the whole photo. Cut them out so each piece stands alone.`}
+function renderCutBanner(){const box=$('cutall');if(cuttingAll)return;const n1=uncutItems().length,n2=closetItems().filter(needsRecrop).length;
+ if(!n1&&!n2){if(!$('cutall-status').textContent.startsWith('Done'))box.hidden=true;else $('cutall-text').textContent='All your pieces are cropped.';$('cutall-btn').hidden=true;return}
+ box.hidden=false;$('cutall-btn').hidden=false;
+ $('cutall-text').textContent=[n1?`${n1} piece${n1>1?'s':''} still show${n1>1?'':'s'} the whole photo.`:'',n2?`${n2} piece${n2>1?'s':''} still use${n2>1?'':'s'} the old cut-out look.`:''].filter(Boolean).join(' ')+' Crop them so each piece shows on its own.'}
 
 // ---------- Mix & Match ----------
 const COLOURS=['black','white','cream','ivory','beige','camel','tan','brown','chocolate','grey','gray','charcoal','navy','blue','denim','teal','turquoise','green','olive','khaki','sage','mint','emerald','red','burgundy','maroon','wine','pink','blush','rose','fuchsia','purple','lilac','lavender','plum','orange','rust','coral','peach','yellow','mustard','gold','silver','nude','taupe'];
@@ -283,7 +296,7 @@ async function mixMatch(){const closet=closetItems();const st=$('mm-status'),out
  st.textContent=looks.length?`${looks.length} outfit idea(s). Tap Quick ideas again for different ones, or send your closet to Claude for styled boards.`:'Not enough pieces to build a full outfit yet. Add tops & bottoms, or dresses, to your Closet.'}
 function selectedInspiration(){const all=records.filter(r=>r.type==='inspiration'),c=$('mm-insp').value;return c?all.filter(i=>String(i.id)===c):all}
 function toggleMix(){const p=$('mixpanel');p.hidden=!p.hidden;if(!p.hidden){p.scrollIntoView({behavior:'smooth',block:'start'});if(!$('mm-results').children.length)mixMatch()}else{$('mm-results').replaceChildren()}}
-// Packs the closet (small cut-out photos), inspiration and recent outfits into one file to attach in a Claude chat.
+// Packs the closet (small cropped photos), inspiration and recent outfits into one file to attach in a Claude chat.
 async function exportForClaude(btn){const closet=closetItems();if(!closet.length){alert('Your Closet is empty — add some pieces first.');return}
  btn.disabled=true;const label=btn.textContent;btn.textContent='Packing your closet…';
  try{const small=async src=>{if(!src)return '';try{return 'data:image/jpeg;base64,'+await shrink(src,360)}catch(e){return ''}};
@@ -388,7 +401,7 @@ async function showDrive(){
 function blobToDataURL(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)})}
 async function importDrive(f,type,button){
  if(type==='diary'||type==='closet'){
-  // Open the full form so pieces are detected and cut out automatically.
+  // Open the full form so pieces are detected and cropped automatically.
   if(records.some(x=>x.driveId===f.id&&x.type===type)&&!confirm('This photo is already in your '+(type==='diary'?'Diary':'Closet')+'. Add it again?'))return;
   button.disabled=true;button.textContent='Opening…';
   try{const photo=await blobToDataURL(await driveImage(f));showTab(type);add(type);pendingPhoto=photo;pendingDriveId=f.id;showPreview();$('title').value=f.name.replace(/\.[^.]+$/,'');$('title').dataset.auto='1';$('notes').value='Imported from original Google Drive photo: '+f.name;autoDetect()}
