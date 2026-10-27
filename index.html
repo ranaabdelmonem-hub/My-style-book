@@ -157,7 +157,7 @@ async function saveEntry(){
  const useCrop=current==='closet'&&pendingCrop;const category=$('category').value;
  const item={id,type:current,title,category,date:current==='diary'?date:'',notes:$('notes').value,photo:useCrop?pendingCrop:photo};if(current==='closet'){item.colour=$('colour').value.trim();item.fabric=$('fabric').value.trim()};if(useCrop){item.original=photo;item.cropV=CROP_V}if(pendingDriveId)item.driveId=pendingDriveId;
  // Already own this piece? Offer to update the existing item instead of adding a duplicate.
- if(current==='closet'&&item.photo){const d=await findDuplicate(item.photo,category,[]);
+ if(current==='closet'&&item.photo){const d=await findDuplicate(item.photo,category,[],{colour:item.colour,title});
   if(d){const choice=await askSame(item.photo,d.item);if(choice==='cancel')return;
    if(choice==='same'){const it=d.item,prev={photo:it.photo,original:it.original,emb:it.emb,embKey:it.embKey,cutChecked:it.cutChecked};
     if(!it.original)it.original=it.photo;it.photo=item.photo;it.emb=d.emb;it.embKey=embKey(item.photo);it.cutChecked=true;it.cropV=item.cropV;it.recropSkipped=true;
@@ -171,7 +171,7 @@ async function saveEntry(){
    const cat=row.querySelector('.pcat').value;
    let piecePhoto=rowPhotos.get(row)||'';if(!piecePhoto&&photo){setAuto(`Cropping the ${name} from your photo…`);piecePhoto=await cropForCategory(photo,cat)}
    const cropped=!!piecePhoto;if(!piecePhoto)piecePhoto=photo;
-   if(cropped){const d=await findDuplicate(piecePhoto,cat,ids);
+   if(cropped){const d=await findDuplicate(piecePhoto,cat,ids,{colour:pcol,title:name});
     if(d){const choice=await askSame(piecePhoto,d.item,name);if(choice==='cancel'){records=old;return}if(choice==='same'){if(!d.item.colour&&pcol)d.item.colour=pcol;if(!d.item.fabric&&pfab)d.item.fabric=pfab;ids.push(d.item.id);matched.push(d.item.title);continue}}}
    const pid=id+1+added.length;records.unshift({id:pid,type:'closet',title:name,category:cat,colour:pcol,fabric:pfab,date:'',notes:'From outfit "'+title+'"'+(date?' · '+date:''),photo:piecePhoto,fromOutfit:id,cutChecked:true,cropV:cropped?CROP_V:undefined});ids.push(pid);added.push(name)}
   item.pieces=ids}
@@ -182,7 +182,7 @@ async function saveEntry(){
 
 // ---------- Duplicate check: compares a piece's photo with what's already in the closet ----------
 // Uses a free image-matching model (CLIP) that runs inside this browser. It only suggests; you always decide.
-const SAME_THRESHOLD=0.83;let clipPromise=null;
+const SAME_THRESHOLD=0.9;let clipPromise=null;
 function getClip(){if(!clipPromise)clipPromise=(async()=>{const tf=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1');const [proc,vis]=await Promise.all([tf.AutoProcessor.from_pretrained('Xenova/clip-vit-base-patch32'),tf.CLIPVisionModelWithProjection.from_pretrained('Xenova/clip-vit-base-patch32')]);return{tf,proc,vis}})().catch(e=>{clipPromise=null;throw e});return clipPromise}
 const embKey=src=>src?src.length+':'+src.slice(-40):'';
 async function embed(src){const {tf,proc,vis}=await getClip();const img=await tf.RawImage.read('data:image/jpeg;base64,'+await shrink(src,448));const {image_embeds}=await vis(await proc(img));const v=image_embeds.data;let n=0;for(const x of v)n+=x*x;n=Math.sqrt(n)||1;return Array.from(v,x=>Math.round(x/n*1e4)/1e4)}
@@ -192,8 +192,16 @@ async function itemEmbedding(x){if(x.emb&&x.embKey===embKey(x.photo))return x.em
  // A piece still showing the whole outfit photo is cropped first, so it can be compared fairly.
  if(!x.original&&!x.cutChecked){try{const pieces=await findPieces(x.photo);const p=pieces.find(p=>p.category===x.category)||(pieces.length===1?pieces[0]:null);if(p){x.original=x.photo;x.photo=p.photo;x.cropV=CROP_V}else x.cutChecked=true}catch(e){}}
  x.emb=await embed(x.photo);x.embKey=embKey(x.photo);return x.emb}
-async function findDuplicate(photo,category,excludeIds){
- const cands=closetItems().filter(x=>x.photo&&(x.category===category||category==='Other'||x.category==='Other')&&!excludeIds.includes(x.id));if(!cands.length)return null;
+// Image similarity alone confuses pieces photographed the same way (same mirror, same pose), so a match must also
+// agree on colour and on the kind of garment: red wide-leg pants are never "the same" as brown trousers.
+const KINDS=[['trousers',/\b(trousers?|pants|jeans|chinos|leggings|joggers|culottes|palazzo)\b/i],['skirt',/\bskirts?\b/i],['shorts',/\bshorts\b/i],['shirt',/\b(shirt|blouse)s?\b/i],['tee',/\b(t-?shirt|tee|tank|cami)s?\b/i],['knit',/\b(sweater|jumper|cardigan|knit|pullover|hoodie)s?\b/i],['jacket',/\b(jacket|blazer|coat|trench|gilet|vest)s?\b/i],['sneakers',/\b(sneakers?|trainers?)\b/i],['heels',/\b(heels?|pumps?|stilettos?)\b/i],['boots',/\bboots?\b/i],['sandals',/\b(sandals?|slides?|flip.?flops?)\b/i],['flats',/\b(flats?|loafers?|ballerinas?|mules?)\b/i],['bag',/\b(bag|tote|clutch|purse|handbag|backpack)s?\b/i],['belt',/\bbelts?\b/i],['scarf',/\bscar(f|ves)\b/i],['hat',/\b(hat|cap|beanie)s?\b/i]];
+const kindOf=t=>{const k=KINDS.find(([,re])=>re.test(t||''));return k?k[0]:''};
+const colourLab=t=>{const c=cols(t)[0];if(!c)return null;const n=NAMED_LAB.find(q=>q[0]===c);if(n)return n.slice(1);
+ return{black:[12,0,0],charcoal:[30,0,0],grey:[52,0,0],white:[95,0,0]}[c]||null};
+function sameKind(info,x){const a=colourLab(info.colour||info.title),b=colourLab(x.colour||x.title);if(a&&b&&labDist(a,b)>30)return false;
+ const ka=kindOf(info.title),kb=kindOf(x.title);return !(ka&&kb&&ka!==kb)}
+async function findDuplicate(photo,category,excludeIds,info={}){
+ const cands=closetItems().filter(x=>x.photo&&(x.category===category||category==='Other'||x.category==='Other')&&!excludeIds.includes(x.id)&&sameKind(info,x));if(!cands.length)return null;
  try{setDupStatus(clipPromise?'Checking if you already own this piece…':'Checking if you already own this piece… (the first time, the matcher downloads once, about 30 seconds)');
   const e=await embed(photo);let best=null,changed=false;
   for(const [i,x] of cands.entries()){if(!(x.emb&&x.embKey===embKey(x.photo))){changed=true;setDupStatus(`Checking your ${category.toLowerCase()} (${i+1} of ${cands.length})…`)}
@@ -275,7 +283,7 @@ function editOutfit(x,info){const f=document.createElement('form');f.className='
     if(same){plan.push({kind:'link',pc:same,col,fab});linked.add(same.id);continue}
     // new piece: zoomed-in crop from the outfit photo, then make sure it isn't already in the closet
     let photo=r._photo||'';if(!photo&&x.photo){saveSt.hidden=false;saveSt.textContent=(segReady?'':'Loading the detector (first time only)… ')+`Cropping the ${pn} from the photo…`;photo=await cropForCategory(x.photo,cat)}
-    if(photo){saveSt.hidden=false;saveSt.textContent=`Checking your closet for the ${pn}…`;const d=await findDuplicate(photo,cat,[...linked]);
+    if(photo){saveSt.hidden=false;saveSt.textContent=`Checking your closet for the ${pn}…`;const d=await findDuplicate(photo,cat,[...linked],{colour:col,title:pn});
      if(d){const choice=await askSame(photo,d.item,pn);if(choice==='cancel'){saveSt.textContent='Not saved. Nothing changed.';return}
       if(choice==='same'){plan.push({kind:'link',pc:d.item,col,fab});linked.add(d.item.id);continue}}}
     plan.push({kind:'new',pn,cat,col,fab,photo})}
@@ -322,10 +330,28 @@ async function cropPhoto(src,box){let [x0,y0,x1,y1]=box.map(Number);if(![x0,y0,x
 let segPromise=null,segReady=false;
 function getSegmenter(){if(!segPromise)segPromise=(async()=>{const tf=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1');const s=await tf.pipeline('image-segmentation','Xenova/segformer_b2_clothes');segReady=true;return s})().catch(e=>{segPromise=null;throw e});return segPromise}
 const PIECE_GROUPS=[['Tops','top',['Upper-clothes']],['Bottoms','trousers',['Pants']],['Bottoms','skirt',['Skirt']],['Dresses','dress',['Dress']],['Shoes','shoes',['Left-shoe','Right-shoe']],['Accessories','bag',['Bag']],['Accessories','hat',['Hat']],['Accessories','scarf',['Scarf']],['Accessories','belt',['Belt']],['Accessories','sunglasses',['Sunglasses']]];
-const NAMED=[['black',25,25,28],['white',240,240,238],['cream',236,226,203],['beige',212,192,160],['camel',190,150,100],['brown',105,70,45],['grey',128,128,128],['charcoal',65,65,70],['navy',35,42,75],['blue',55,95,170],['light blue',150,185,220],['denim',80,105,140],['green',60,120,70],['olive',105,105,55],['khaki',170,160,115],['red',180,35,45],['burgundy',105,30,45],['pink',228,150,170],['purple',110,65,135],['lilac',190,165,210],['orange',225,120,45],['rust',165,80,45],['yellow',230,200,70],['mustard',200,160,40]];
-function colourName([r,g,b]){const mx=Math.max(r,g,b),mn=Math.min(r,g,b),L=(r+g+b)/3;
- if(mx-mn<38)return L>210?'white':L>165?'light grey':L>110?'grey':L>85?'charcoal':'black';
- let best='',d=1e9;for(const [n,R,G,B] of NAMED){if(['black','white','grey','charcoal'].includes(n))continue;const e=(r-R)**2*2+(g-G)**2*4+(b-B)**2*3;if(e<d){d=e;best=n}}return best}
+// Reference shades as they look on real fabric in everyday photos. Matched in CIELAB (how the eye sees colour), not raw RGB.
+const NAMED=[['cream',236,226,203],['beige',205,185,155],['camel',185,140,90],['taupe',140,125,110],['brown',120,75,45],['chocolate',72,46,34],['khaki',170,160,115],['olive',100,100,50],['sage',150,165,135],['green',50,120,70],['teal',30,120,125],['navy',35,42,75],['denim',80,105,140],['blue',40,85,170],['light blue',155,190,225],['lilac',185,165,210],['purple',105,60,135],['plum',95,45,75],['pink',230,160,180],['fuchsia',205,40,130],['red',185,30,40],['burgundy',105,28,45],['rust',165,80,45],['coral',240,120,100],['orange',230,125,40],['mustard',200,155,40],['yellow',235,205,70]];
+function toLab([r,g,b]){const f=v=>(v/=255)<=.04045?v/12.92:((v+.055)/1.055)**2.4;const R=f(r),G=f(g),B=f(b);
+ const h=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;const X=h((R*.4124+G*.3576+B*.1805)/.95047),Y=h(R*.2126+G*.7152+B*.0722),Z=h((R*.0193+G*.1192+B*.9505)/1.08883);
+ return[116*Y-16,500*(X-Y),200*(Y-Z)]}
+const NAMED_LAB=NAMED.map(([n,r,g,b])=>[n,...toLab([r,g,b])]);
+// Lightness counts half: the same garment looks lighter or darker with the light, but its hue stays.
+const labDist=(p,q)=>Math.hypot((p[0]-q[0])*.5,p[1]-q[1],p[2]-q[2]);
+function labName([L,A,B]){const C=Math.hypot(A,B);
+ if(C<7||(C<11&&L<28))return L<22?'black':L<38?'charcoal':L<62?'grey':L<84?'light grey':'white';
+ let best='',d=1e9;for(const [n,...q] of NAMED_LAB){const e=labDist([L,A,B],q);if(e<d){d=e;best=n}}return best}
+function colourName(rgb){return labName(toLab(rgb))}
+// Main colour of a set of pixels: groups them into 3 shades (k-means in CIELAB) and keeps the largest group,
+// so shadows, highlights, prints and stray background don't muddy the result the way a plain average does.
+function dominantLab(labs){if(!labs.length)return[50,0,0];const k=Math.min(3,labs.length);
+ let cs=[0,.5,.99].slice(0,k).map(f=>{const s=labs.slice().sort((a,b)=>a[0]-b[0]);return s[Math.floor(f*(s.length-1))].slice()});let as=new Int32Array(labs.length);
+ for(let it=0;it<10;it++){const sum=cs.map(()=>[0,0,0,0]);
+  labs.forEach((p,i)=>{let bi=0,bd=1e9;cs.forEach((c,j)=>{const d=labDist(p,c);if(d<bd){bd=d;bi=j}});as[i]=bi;const t=sum[bi];t[0]+=p[0];t[1]+=p[1];t[2]+=p[2];t[3]++});
+  cs=cs.map((c,j)=>sum[j][3]?[sum[j][0]/sum[j][3],sum[j][1]/sum[j][3],sum[j][2]/sum[j][3]]:c)}
+ const n=cs.map((_,j)=>as.reduce((a,v)=>a+(v===j),0));
+ // a very dark or blown-out group is only preferred if it clearly dominates (shadow / flash glare)
+ const score=j=>n[j]*((cs[j][0]<12||cs[j][0]>96)?.6:1);let b=0;for(let j=1;j<k;j++)if(score(j)>score(b))b=j;return cs[b]}
 // Keep only the main parts of a mask (drops stray specks the detector mislabels).
 function keepMain(m,w,h){const lab=new Int32Array(w*h),sizes=[0],stack=new Int32Array(w*h);let id=0;
  for(let s=0;s<m.length;s++){if(m[s]<=127||lab[s])continue;id++;let top=0,n=0;stack[top++]=s;lab[s]=id;
@@ -339,21 +365,24 @@ async function findPieces(src){const seg=await getSegmenter();const small='data:
   const w=ms[0].mask.width,h=ms[0].mask.height,m=new Uint8ClampedArray(w*h);for(const o of ms){const d=o.mask.data;for(let i=0;i<m.length;i++)if(d[i]>m[i])m[i]=d[i]}
   keepMain(m,w,h);let n=0,x0=w,y0=h,x1=0,y1=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(m[y*w+x]>127){n++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
   if(n<w*h*(category==='Shoes'||category==='Accessories'?0.002:0.012))continue;
-  const cut=cutout(img,m,w,h,x0,y0,x1+1,y1+1);const col=colourName(cut.rgb);
-  res.push({category,colour:col,name:col.charAt(0).toUpperCase()+col.slice(1)+' '+noun,photo:cut.photo})}
+  const cut=cutout(img,m,w,h,x0,y0,x1+1,y1+1);const col=labName(cut.lab);
+  res.push({category,colour:col,lab:cut.lab,name:col.charAt(0).toUpperCase()+col.slice(1)+' '+noun,photo:cut.photo})}
  return res}
 // A plain rectangular crop of the real photo around the piece (no cut-out edges).
 function cutout(img,m,w,h,x0,y0,x1,y1){
  // colour of the piece itself, from the detector's mask
- let r=0,g=0,b=0,k=0;const sc=document.createElement('canvas');sc.width=w;sc.height=h;const sg=sc.getContext('2d');sg.drawImage(img,0,0,w,h);const px=sg.getImageData(0,0,w,h).data;
- for(let i=0;i<m.length;i+=3)if(m[i]>200){r+=px[i*4];g+=px[i*4+1];b+=px[i*4+2];k++}
+ // Only pixels well inside the piece (edges often catch skin, hair or background), sampled evenly.
+ const sc=document.createElement('canvas');sc.width=w;sc.height=h;const sg=sc.getContext('2d');sg.drawImage(img,0,0,w,h);const px=sg.getImageData(0,0,w,h).data;
+ const inner=i=>{const x=i%w,y=(i/w)|0;for(const [dx,dy] of [[-3,0],[3,0],[0,-3],[0,3]]){const X=x+dx,Y=y+dy;if(X<0||Y<0||X>=w||Y>=h||m[Y*w+X]<=200)return false}return true};
+ let idx=[];for(let i=0;i<m.length;i++)if(m[i]>200&&inner(i))idx.push(i);if(idx.length<30)idx=[];if(!idx.length)for(let i=0;i<m.length;i++)if(m[i]>200)idx.push(i);
+ const step=Math.max(1,Math.floor(idx.length/3000)),labs=[];for(let j=0;j<idx.length;j+=step){const i=idx[j];labs.push(toLab([px[i*4],px[i*4+1],px[i*4+2]]))}
  // generous padding, then keep the shape between portrait 3:5 and landscape 5:4 so it reads like a product photo
  let bw=x1-x0,bh=y1-y0,cx=(x0+x1)/2,cy=(y0+y1)/2;bw*=1.18;bh*=1.12;
  if(bw/bh<0.6)bw=bh*0.6;if(bw/bh>1.25)bh=bw/1.25;
  bw=Math.min(bw,w);bh=Math.min(bh,h);let X0=Math.max(0,Math.min(w-bw,cx-bw/2)),Y0=Math.max(0,Math.min(h-bh,cy-bh/2));
  const fx=img.width/w,fy=img.height/h,sw=bw*fx,sh=bh*fy,s=Math.min(1,1000/Math.max(sw,sh)),W=Math.max(1,Math.round(sw*s)),H=Math.max(1,Math.round(sh*s));
  const o=document.createElement('canvas');o.width=W;o.height=H;o.getContext('2d').drawImage(img,X0*fx,Y0*fy,sw,sh,0,0,W,H);
- return{photo:o.toDataURL('image/jpeg',.9),rgb:k?[r/k,g/k,b/k]:[128,128,128]}}
+ return{photo:o.toDataURL('image/jpeg',.9),lab:dominantLab(labs)}}
 const CROP_V=2;
 // Detector results are reused per photo, so several pieces of one outfit only run it once.
 const piecesCache=new Map();
